@@ -2,7 +2,10 @@
   "name": "fmodata",
   "version": "0.1.0",
   "description": "FileMaker OData API client",
-  "repository": "git@github.com:proofgeist/fmodata.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/proofgeist/odata-mcp.git"
+  },
   "author": "Chris",
   "license": "MIT",
   "private": false,

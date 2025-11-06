@@ -2,8 +2,11 @@
   "name": "fmodata-mcp",
   "version": "0.1.0",
   "description": "MCP server for FileMaker OData API",
-  "repository": "git@github.com:proofgeist/fmodata.git",
-  "author": "Eric <37158449+eluce2@users.noreply.github.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/proofgeist/odata-mcp.git"
+  },
+  "author": "Chris Corsini <chris.corsi@proofgeist.com>",
   "license": "MIT",
   "private": false,
   "type": "module",

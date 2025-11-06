@@ -1,4 +1,4 @@
-# @proofkit/fmodata-mcp
+# fmodata-mcp
 
 MCP (Model Context Protocol) server for FileMaker OData API. This server exposes FileMaker OData operations as tools that can be used by AI assistants and other MCP clients.
 
@@ -7,16 +7,16 @@ MCP (Model Context Protocol) server for FileMaker OData API. This server exposes
 ### Install from npm (Recommended)
 
 ```bash
-npm install -g @proofkit/fmodata-mcp
+npm install -g fmodata-mcp
 # or
-pnpm add -g @proofkit/fmodata-mcp
+pnpm add -g fmodata-mcp
 # or
-yarn global add @proofkit/fmodata-mcp
+yarn global add fmodata-mcp
 ```
 
 Or use `npx` to run without installing:
 ```bash
-npx @proofkit/fmodata-mcp --http --host=... --database=...
+npx fmodata-mcp --http --host=... --database=...
 ```
 
 ## Configuration
@@ -54,7 +54,7 @@ The server can be configured in two ways:
       "command": "npx",
       "args": [
         "-y",
-        "@proofkit/fmodata-mcp",
+        "fmodata-mcp",
         "--host",
         "https://your-server.example.com",
         "--database",
@@ -75,7 +75,7 @@ The server can be configured in two ways:
     "fmodata": {
       "command": "node",
       "args": [
-        "./node_modules/@proofkit/fmodata-mcp/dist/index.js",
+        "./node_modules/fmodata-mcp/dist/index.js",
         "--host",
         "https://your-server.example.com",
         "--database",
@@ -175,7 +175,7 @@ Add the server to your MCP client configuration (e.g., Cursor `mcp.json`):
       "command": "npx",
       "args": [
         "-y",
-        "@proofkit/fmodata-mcp",
+        "fmodata-mcp",
         "--host",
         "https://your-server.example.com",
         "--database",
