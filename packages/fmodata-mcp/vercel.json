@@ -1,19 +1,21 @@
 {
   "buildCommand": "npm run build",
+  "framework": null,
   "functions": {
     "api/mcp.ts": {
-      "maxDuration": 30
+      "maxDuration": 60
+    },
+    "api/health.ts": {
+      "maxDuration": 10
+    },
+    "api/index.ts": {
+      "maxDuration": 10
     }
   },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/mcp",
-      "dest": "/api/mcp"
-    },
-    {
-      "src": "/health",
-      "dest": "/api/health"
+      "source": "/",
+      "destination": "/api/index"
     }
   ]
 }
-

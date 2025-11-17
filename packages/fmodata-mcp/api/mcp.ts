@@ -1,29 +1,22 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { createServer, type ODataConfig } from "../dist/server.js";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { createMcpHandler } from "mcp-handler";
+import { ODataApi, FetchAdapter, OttoAdapter, isOttoAPIKey } from "fmodata";
+import { z } from "zod";
 
-// Note: Vercel serverless functions are stateless, so we create a new server for each request
-// For production with persistent sessions, use Redis or a database
-
-function generateSessionId(): string {
-  return `session-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+interface ODataConfig {
+  host: string;
+  database: string;
+  username?: string;
+  password?: string;
+  ottoApiKey?: string;
+  ottoPort?: number;
 }
 
-function getConfigFromHeaders(req: VercelRequest): Partial<ODataConfig> {
+function getConfigFromHeaders(req: Request): Partial<ODataConfig> {
   // Helper to get header value (case-insensitive)
   const getHeader = (name: string): string | undefined => {
-    const lowerName = name.toLowerCase();
-    const header = Object.keys(req.headers).find(
-      (key) => key.toLowerCase() === lowerName
-    );
-    if (header) {
-      const value = req.headers[header];
-      return Array.isArray(value) ? value[0] : value;
-    }
-    return undefined;
+    return req.headers.get(name) || undefined;
   };
 
-  // Try both x- prefixed and non-prefixed versions
   const host =
     getHeader("x-fmodata-host") ||
     getHeader("fmodata-host") ||
@@ -64,76 +57,213 @@ function getConfigFromHeaders(req: VercelRequest): Partial<ODataConfig> {
   };
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Handle CORS
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, mcp-session-id, x-mcp-session-id, x-fmodata-host, x-fmodata-database, x-fmodata-filename, x-fmodata-username, x-fmodata-password, x-fmodata-otto-api-key, x-fmodata-api-key, x-fmodata-otto-port, fmodata-host, fmodata-database, fmodata-filename, fmodata-username, fmodata-password, fmodata-otto-api-key, fmodata-api-key, fmodata-otto-port"
-  );
-
-  if (req.method === "OPTIONS") {
-    res.status(200).end();
-    return;
-  }
-
-  try {
-    // Get config from headers (per-request)
-    const config = getConfigFromHeaders(req);
-
-    // Validate required config
-    if (!config.host || !config.database) {
-      res.status(400).json({
-        jsonrpc: "2.0",
-        error: {
-          code: -32000,
-          message:
-            "Missing required headers: x-fmodata-host and x-fmodata-database (or x-fmodata-filename) must be provided",
-        },
-        id: null,
-      });
-      return;
-    }
-
-    console.log(`Creating server with config:`, {
-      host: config.host,
-      database: config.database,
-      hasAuth: !!(config.username || config.ottoApiKey)
-    });
-
-    // Create a new server for each request (serverless functions are stateless)
-    const server = await createServer(config);
-    const sessionId = generateSessionId();
+function createODataClient(config: ODataConfig) {
+  let adapter;
+  
+  if (config.ottoApiKey && isOttoAPIKey(config.ottoApiKey)) {
+    // Build auth object based on API key type
+    const auth = config.ottoApiKey.startsWith("dk_")
+      ? { apiKey: config.ottoApiKey as `dk_${string}` }
+      : { apiKey: config.ottoApiKey as `KEY_${string}`, ottoPort: config.ottoPort };
     
-    const transport = new StreamableHTTPServerTransport({
-      sessionIdGenerator: () => sessionId,
-      onsessioninitialized: (id) => {
-        console.log(`Session ${id} initialized`);
-      },
-      onsessionclosed: (id) => {
-        console.log(`Session ${id} closed`);
-      },
+    adapter = new OttoAdapter({
+      server: config.host,
+      database: config.database,
+      auth,
     });
-
-    await server.connect(transport);
-    console.log(`Server connected to transport for session ${sessionId}`);
-
-    // Set session ID in response header
-    res.setHeader("mcp-session-id", sessionId);
-
-    // Handle the request
-    await transport.handleRequest(req, res, req.body);
-  } catch (error) {
-    console.error("Error handling MCP request:", error);
-    res.status(500).json({
-      jsonrpc: "2.0",
-      error: {
-        code: -32000,
-        message: error instanceof Error ? error.message : String(error),
+  } else {
+    adapter = new FetchAdapter({
+      server: config.host,
+      database: config.database,
+      auth: {
+        username: config.username || "",
+        password: config.password || "",
       },
-      id: null,
     });
   }
+
+  return ODataApi({ adapter });
 }
 
+// Create handler factory
+function createHandler(config: ODataConfig) {
+  const client = createODataClient(config);
+
+  return createMcpHandler(
+    (server) => {
+      // List tables tool
+      server.tool(
+        "fmodata_list_tables",
+        "Get all tables in the database",
+        {},
+        async () => {
+          const tables = await client.getTables();
+          return {
+            content: [{ type: "text", text: JSON.stringify(tables, null, 2) }],
+          };
+        }
+      );
+
+      // Get metadata tool
+      server.tool(
+        "fmodata_get_metadata",
+        "Get OData metadata ($metadata)",
+        {},
+        async () => {
+          const metadata = await client.getMetadata();
+          return {
+            content: [{ type: "text", text: JSON.stringify(metadata, null, 2) }],
+          };
+        }
+      );
+
+      // Query records tool
+      server.tool(
+        "fmodata_query_records",
+        "Query records with filters, sorting, and pagination",
+        {
+          table: z.string().describe("Table name"),
+          filter: z.string().optional().describe("OData $filter expression"),
+          select: z.string().optional().describe("Comma-separated field names"),
+          orderby: z.string().optional().describe("Sort expression (e.g., 'Name desc')"),
+          top: z.number().optional().describe("Maximum number of records"),
+          skip: z.number().optional().describe("Number of records to skip"),
+        },
+        async ({ table, filter, select, orderby, top, skip }) => {
+          const results = await client.getRecords(table, {
+            $filter: filter,
+            $select: select,
+            $orderby: orderby,
+            $top: top,
+            $skip: skip,
+          });
+          return {
+            content: [{ type: "text", text: JSON.stringify(results, null, 2) }],
+          };
+        }
+      );
+
+      // Get record tool
+      server.tool(
+        "fmodata_get_record",
+        "Get a single record by primary key",
+        {
+          table: z.string().describe("Table name"),
+          key: z.union([z.string(), z.number()]).describe("Primary key value"),
+          select: z.string().optional().describe("Comma-separated field names"),
+        },
+        async ({ table, key, select }) => {
+          const result = await client.getRecord(table, key, {
+            $select: select,
+          });
+          return {
+            content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+          };
+        }
+      );
+
+      // Create record tool
+      server.tool(
+        "fmodata_create_record",
+        "Create a new record",
+        {
+          table: z.string().describe("Table name"),
+          data: z.record(z.any()).describe("Record data as key-value pairs"),
+        },
+        async ({ table, data }) => {
+          const result = await client.createRecord(table, { data });
+          return {
+            content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+          };
+        }
+      );
+
+      // Update record tool
+      server.tool(
+        "fmodata_update_record",
+        "Update an existing record",
+        {
+          table: z.string().describe("Table name"),
+          key: z.union([z.string(), z.number()]).describe("Primary key value"),
+          data: z.record(z.any()).describe("Updated data as key-value pairs"),
+        },
+        async ({ table, key, data }) => {
+          const result = await client.updateRecord(table, key, { data });
+          return {
+            content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+          };
+        }
+      );
+
+      // Delete record tool
+      server.tool(
+        "fmodata_delete_record",
+        "Delete a record",
+        {
+          table: z.string().describe("Table name"),
+          key: z.union([z.string(), z.number()]).describe("Primary key value"),
+        },
+        async ({ table, key }) => {
+          await client.deleteRecord(table, key);
+          return {
+            content: [{ type: "text", text: `Record ${key} deleted successfully` }],
+          };
+        }
+      );
+    },
+    {
+      capabilities: {
+        tools: {},
+      },
+    },
+    {
+      basePath: "/api",
+    }
+  );
+}
+
+// Main handler - directly create the MCP handler per request
+export async function GET(req: Request) {
+  return handler(req);
+}
+
+export async function POST(req: Request) {
+  return handler(req);
+}
+
+export async function DELETE(req: Request) {
+  return handler(req);
+}
+
+async function handler(req: Request): Promise<Response> {
+  // Get config from headers
+  const config = getConfigFromHeaders(req);
+
+  // Validate required config
+  if (!config.host || !config.database) {
+    return new Response(
+      JSON.stringify({
+        error: {
+          message:
+            "Missing required headers: x-fmodata-host and x-fmodata-database must be provided",
+        },
+      }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
+  console.log("Creating MCP server with config:", {
+    host: config.host,
+    database: config.database,
+    hasAuth: !!(config.username || config.ottoApiKey),
+  });
+
+  // Create handler with this config
+  const mcpHandler = createHandler(config as ODataConfig);
+
+  // Forward to MCP handler
+  return mcpHandler(req);
+}

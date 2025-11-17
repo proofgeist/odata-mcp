@@ -32,6 +32,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.20.2",
     "@vercel/node": "^3.0.0",
+    "mcp-handler": "^1.0.3",
     "fmodata": "^0.1.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
