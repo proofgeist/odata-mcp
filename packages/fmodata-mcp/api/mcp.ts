@@ -2,12 +2,8 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createServer, type ODataConfig } from "../dist/server.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 
-// Store sessions in a Map (in production, consider using Redis or similar)
-// Note: This is in-memory and will reset on cold starts
-const sessions = new Map<
-  string,
-  { server: Awaited<ReturnType<typeof createServer>>; transport: StreamableHTTPServerTransport }
->();
+// Note: Vercel serverless functions are stateless, so we create a new server for each request
+// For production with persistent sessions, use Redis or a database
 
 function generateSessionId(): string {
   return `session-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
@@ -83,13 +79,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // Get session ID from headers or query
-    const sessionId =
-      (req.headers["mcp-session-id"] as string) ||
-      (req.headers["x-mcp-session-id"] as string) ||
-      (req.query.sessionId as string) ||
-      undefined;
-
     // Get config from headers (per-request)
     const config = getConfigFromHeaders(req);
 
@@ -107,48 +96,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
-    // Create a session key that includes config to ensure sessions are isolated per config
-    // This way different users with different credentials get different sessions
-    const sessionKey = sessionId
-      ? `${sessionId}-${config.host}-${config.database}`
-      : undefined;
+    console.log(`Creating server with config:`, {
+      host: config.host,
+      database: config.database,
+      hasAuth: !!(config.username || config.ottoApiKey)
+    });
 
-    let session = sessionKey ? sessions.get(sessionKey) : undefined;
+    // Create a new server for each request (serverless functions are stateless)
+    const server = await createServer(config);
+    const sessionId = generateSessionId();
+    
+    const transport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: () => sessionId,
+      onsessioninitialized: (id) => {
+        console.log(`Session ${id} initialized`);
+      },
+      onsessionclosed: (id) => {
+        console.log(`Session ${id} closed`);
+      },
+    });
 
-    // If no session ID or session not found, create a new session
-    if (!sessionKey || !session) {
-      const newSessionId = sessionId || generateSessionId();
-      const newSessionKey = `${newSessionId}-${config.host}-${config.database}`;
+    await server.connect(transport);
+    console.log(`Server connected to transport for session ${sessionId}`);
 
-      const server = await createServer(config);
-      const transport = new StreamableHTTPServerTransport({
-        sessionIdGenerator: () => newSessionId,
-        onsessioninitialized: (id) => {
-          console.log(`Session ${id} initialized`);
-        },
-        onsessionclosed: (id) => {
-          console.log(`Session ${id} closed`);
-          // Find and remove session by ID
-          for (const [key, sess] of sessions.entries()) {
-            if (key.startsWith(id)) {
-              sessions.delete(key);
-              break;
-            }
-          }
-        },
-      });
-
-      await server.connect(transport);
-
-      session = { server, transport };
-      sessions.set(newSessionKey, session);
-
-      // Set session ID in response header for client to use
-      res.setHeader("mcp-session-id", newSessionId);
-    }
+    // Set session ID in response header
+    res.setHeader("mcp-session-id", sessionId);
 
     // Handle the request
-    await session.transport.handleRequest(req, res, req.body);
+    await transport.handleRequest(req, res, req.body);
   } catch (error) {
     console.error("Error handling MCP request:", error);
     res.status(500).json({
