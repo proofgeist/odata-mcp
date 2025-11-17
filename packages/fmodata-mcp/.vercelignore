@@ -1,9 +1,7 @@
 node_modules
-src
 tests
 *.test.ts
 *.test.js
-tsconfig.json
 vitest.config.ts
 vite.config.ts
 .prettierrc
