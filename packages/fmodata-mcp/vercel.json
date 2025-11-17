@@ -1,20 +1,18 @@
 {
-  "framework": null,
   "buildCommand": "npm run build",
-  "outputDirectory": "dist",
   "functions": {
     "api/mcp.ts": {
       "maxDuration": 30
     }
   },
-  "rewrites": [
+  "routes": [
     {
-      "source": "/mcp",
-      "destination": "/api/mcp"
+      "src": "/mcp",
+      "dest": "/api/mcp"
     },
     {
-      "source": "/health",
-      "destination": "/api/health"
+      "src": "/health",
+      "dest": "/api/health"
     }
   ]
 }
