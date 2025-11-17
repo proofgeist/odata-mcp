@@ -80,7 +80,7 @@ export class OttoAdapter extends BaseFetchAdapter {
     fetchOptions?: RequestInit;
   }): Promise<T> {
     // For OttoFMS, ensure the path includes /otto prefix
-    // Since utility functions return absolute paths like /fmi/odata/v4/..., 
+    // Since utility functions return absolute paths like /fmi/odata/v4/...,
     // we need to insert /otto before /fmi
     if (isOttoFMSAPIKey(this.apiKey) && params.path.startsWith("/fmi/")) {
       const modifiedPath = params.path.replace(/^(\/fmi\/)/, "/otto$1");
@@ -95,4 +95,3 @@ export class OttoAdapter extends BaseFetchAdapter {
     return `Bearer ${this.apiKey}`;
   }
 }
-

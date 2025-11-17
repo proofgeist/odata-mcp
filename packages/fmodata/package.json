@@ -28,7 +28,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "prepublishOnly": "pnpm run ci",
+    "prepublishOnly": "pnpm build && pnpm format && pnpm publint --strict",
     "build": "tsc && vite build && publint --strict",
     "build:watch": "tsc && vite build --watch",
     "check-format": "prettier --check .",

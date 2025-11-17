@@ -20,7 +20,7 @@ export function createMockResponse(
     headers: responseHeaders,
     json: async () => data as never,
     text: async () => (typeof data === "string" ? data : JSON.stringify(data)),
-  } as Response;
+  } as unknown as Response;
 }
 
 export function createODataResponse<T>(value: T[]): {
@@ -30,7 +30,8 @@ export function createODataResponse<T>(value: T[]): {
 } {
   return {
     value,
-    "@odata.context": "https://test-server.example.com/fmi/odata/v4/TestDatabase/$metadata",
+    "@odata.context":
+      "https://test-server.example.com/fmi/odata/v4/TestDatabase/$metadata",
     "@odata.count": value.length,
   };
 }
@@ -52,4 +53,3 @@ export function createODataErrorResponse(
 beforeEach(() => {
   vi.clearAllMocks();
 });
-

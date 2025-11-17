@@ -59,9 +59,7 @@ describe("BaseFetchAdapter", () => {
         { name: "Table2", kind: "EntitySet", url: "Table2" },
       ]);
 
-      mockFetch.mockResolvedValueOnce(
-        createMockResponse(mockData),
-      );
+      mockFetch.mockResolvedValueOnce(createMockResponse(mockData));
 
       const result = await adapter.getTables();
 
@@ -78,10 +76,11 @@ describe("BaseFetchAdapter", () => {
     });
 
     it("should handle errors", async () => {
-      const errorResponse = createODataErrorResponse("500", "Internal Server Error");
-      mockFetch.mockResolvedValueOnce(
-        createMockResponse(errorResponse, 500),
+      const errorResponse = createODataErrorResponse(
+        "500",
+        "Internal Server Error",
       );
+      mockFetch.mockResolvedValueOnce(createMockResponse(errorResponse, 500));
 
       await expect(adapter.getTables()).rejects.toThrow(FileMakerODataError);
     });
@@ -130,7 +129,9 @@ describe("BaseFetchAdapter", () => {
     });
 
     it("should apply $filter query option", async () => {
-      const mockData = createODataResponse([{ id: "1", name: "Filtered Record" }]);
+      const mockData = createODataResponse([
+        { id: "1", name: "Filtered Record" },
+      ]);
 
       mockFetch.mockResolvedValueOnce(createMockResponse(mockData));
 
@@ -162,7 +163,9 @@ describe("BaseFetchAdapter", () => {
     });
 
     it("should apply $select query option", async () => {
-      mockFetch.mockResolvedValueOnce(createMockResponse(createODataResponse([])));
+      mockFetch.mockResolvedValueOnce(
+        createMockResponse(createODataResponse([])),
+      );
 
       await adapter.getRecords("TestTable", {
         $select: "id,name",
@@ -175,7 +178,9 @@ describe("BaseFetchAdapter", () => {
     });
 
     it("should apply $orderby query option", async () => {
-      mockFetch.mockResolvedValueOnce(createMockResponse(createODataResponse([])));
+      mockFetch.mockResolvedValueOnce(
+        createMockResponse(createODataResponse([])),
+      );
 
       await adapter.getRecords("TestTable", {
         $orderby: "name desc",
@@ -272,7 +277,9 @@ describe("BaseFetchAdapter", () => {
       const value = await adapter.getFieldValue("TestTable", 123, "fieldName");
 
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("/fmi/odata/v4/TestDatabase/TestTable(123)/fieldName/$value"),
+        expect.stringContaining(
+          "/fmi/odata/v4/TestDatabase/TestTable(123)/fieldName/$value",
+        ),
         expect.any(Object),
       );
       expect(value).toBe("field value");
@@ -302,7 +309,9 @@ describe("BaseFetchAdapter", () => {
 
     it("should include timeout in request", async () => {
       const recordData = { name: "New Record" };
-      mockFetch.mockResolvedValueOnce(createMockResponse({ id: "999", ...recordData }));
+      mockFetch.mockResolvedValueOnce(
+        createMockResponse({ id: "999", ...recordData }),
+      );
 
       await adapter.createRecord("TestTable", {
         data: recordData,
@@ -361,10 +370,16 @@ describe("BaseFetchAdapter", () => {
 
       mockFetch.mockResolvedValueOnce(createMockResponse(mockData));
 
-      const result = await adapter.navigateRelated("TestTable", 123, "RelatedTable");
+      const result = await adapter.navigateRelated(
+        "TestTable",
+        123,
+        "RelatedTable",
+      );
 
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("/fmi/odata/v4/TestDatabase/TestTable(123)/RelatedTable"),
+        expect.stringContaining(
+          "/fmi/odata/v4/TestDatabase/TestTable(123)/RelatedTable",
+        ),
         expect.any(Object),
       );
       expect(result.value).toHaveLength(2);
@@ -397,7 +412,9 @@ describe("BaseFetchAdapter", () => {
       const result = await adapter.crossJoin(["Table1", "Table2"]);
 
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("/fmi/odata/v4/TestDatabase/CrossJoin(Table1,Table2)"),
+        expect.stringContaining(
+          "/fmi/odata/v4/TestDatabase/CrossJoin(Table1,Table2)",
+        ),
         expect.any(Object),
       );
       expect(result.value).toBeDefined();
@@ -493,7 +510,9 @@ describe("BaseFetchAdapter", () => {
       await adapter.deleteField("TestTable", "fieldName");
 
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("/fmi/odata/v4/TestDatabase/TestTable/fieldName"),
+        expect.stringContaining(
+          "/fmi/odata/v4/TestDatabase/TestTable/fieldName",
+        ),
         expect.objectContaining({
           method: "DELETE",
         }),
@@ -522,7 +541,9 @@ describe("BaseFetchAdapter", () => {
     });
 
     it("should run a script with parameter", async () => {
-      mockFetch.mockResolvedValueOnce(createMockResponse({ scriptResult: "success" }));
+      mockFetch.mockResolvedValueOnce(
+        createMockResponse({ scriptResult: "success" }),
+      );
 
       await adapter.runScript("TestTable", {
         script: "MyScript",
@@ -537,10 +558,12 @@ describe("BaseFetchAdapter", () => {
 
   describe("error handling", () => {
     it("should throw FileMakerODataError on API error", async () => {
-      const errorResponse = createODataErrorResponse("404", "Record not found", "key");
-      mockFetch.mockResolvedValueOnce(
-        createMockResponse(errorResponse, 404),
+      const errorResponse = createODataErrorResponse(
+        "404",
+        "Record not found",
+        "key",
       );
+      mockFetch.mockResolvedValueOnce(createMockResponse(errorResponse, 404));
 
       await expect(adapter.getRecord("TestTable", 999)).rejects.toThrow(
         FileMakerODataError,
@@ -633,4 +656,3 @@ describe("BaseFetchAdapter", () => {
     });
   });
 });
-

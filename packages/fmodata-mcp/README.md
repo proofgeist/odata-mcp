@@ -4,48 +4,17 @@ MCP (Model Context Protocol) server for FileMaker OData API. This server exposes
 
 ## Installation
 
-### Install from npm (Recommended)
+Use `npx` to run without installing:
 
 ```bash
-npm install -g fmodata-mcp
-# or
-pnpm add -g fmodata-mcp
-# or
-yarn global add fmodata-mcp
-```
-
-Or use `npx` to run without installing:
-```bash
-npx fmodata-mcp --http --host=... --database=...
+npx -y fmodata-mcp --host=https://your-server.example.com --database=YourDatabase --ottoApiKey=dk_your-api-key
 ```
 
 ## Configuration
 
-The server can be configured in two ways:
+Add the server to your MCP client configuration (e.g., Cursor `mcp.json`):
 
-### Option 1: Configuration via MCP Args (Recommended)
-
-**If installed globally**, use the `fmodata-mcp` command:
-
-```json
-{
-  "mcpServers": {
-    "fmodata": {
-      "command": "fmodata-mcp",
-      "args": [
-        "--host",
-        "https://your-server.example.com",
-        "--database",
-        "YourDatabase",
-        "--ottoApiKey",
-        "dk_your-api-key"
-      ]
-    }
-  }
-}
-```
-
-**If using npx**, use the full package name:
+### With Otto API Key
 
 ```json
 {
@@ -67,21 +36,24 @@ The server can be configured in two ways:
 }
 ```
 
-**If installed locally**, use the full path to the binary:
+### With Basic Auth
 
 ```json
 {
   "mcpServers": {
     "fmodata": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "./node_modules/fmodata-mcp/dist/index.js",
+        "-y",
+        "fmodata-mcp",
         "--host",
         "https://your-server.example.com",
         "--database",
         "YourDatabase",
-        "--ottoApiKey",
-        "dk_your-api-key"
+        "--username",
+        "your-username",
+        "--password",
+        "your-password"
       ]
     }
   }
@@ -97,77 +69,7 @@ The server can be configured in two ways:
 - `--password` or `--pass` - FileMaker password (for Basic Auth)
 
 You can also use `--key=value` format:
-```json
-{
-  "mcpServers": {
-    "fmodata": {
-      "command": "node",
-      "args": [
-        "/path/to/fmodata-mcp/dist/index.js",
-        "--host=https://your-server.example.com",
-        "--database=YourDatabase",
-        "--ottoApiKey=dk_your-api-key"
-      ]
-    }
-  }
-}
-```
 
-### Option 2: Environment Variables
-
-The server can also read configuration from environment variables:
-
-**Required Variables:**
-- `FMODATA_HOST` - FileMaker server host (e.g., `https://your-server.example.com`)
-- `FMODATA_DATABASE` - Database name
-
-**Authentication (choose one):**
-
-**Basic Auth:**
-- `FMODATA_USERNAME` - FileMaker username
-- `FMODATA_PASSWORD` - FileMaker password
-
-**Otto API Key:**
-- `FMODATA_OTTO_API_KEY` - Otto API key (`dk_` prefix for OttoFMS, `KEY_` prefix for Otto v3)
-- `FMODATA_OTTO_PORT` - Otto port (optional, only for Otto v3, defaults to 3030)
-
-**Note:** Configuration from args takes precedence over environment variables.
-
-## Usage
-
-### Running the Server
-
-```bash
-node dist/index.js
-# or after building
-pnpm run build
-node dist/index.js
-```
-
-### MCP Client Configuration
-
-Add the server to your MCP client configuration (e.g., Cursor `mcp.json`):
-
-**Using global install (recommended):**
-```json
-{
-  "mcpServers": {
-    "fmodata": {
-      "command": "fmodata-mcp",
-      "args": [
-        "--host",
-        "https://your-server.example.com",
-        "--database",
-        "YourDatabase",
-        "--ottoApiKey",
-        "dk_your-api-key"
-      ]
-    }
-  }
-}
-```
-
-**Using npx (no install required):**
 ```json
 {
   "mcpServers": {
@@ -176,90 +78,14 @@ Add the server to your MCP client configuration (e.g., Cursor `mcp.json`):
       "args": [
         "-y",
         "fmodata-mcp",
-        "--host",
-        "https://your-server.example.com",
-        "--database",
-        "YourDatabase",
-        "--ottoApiKey",
-        "dk_your-api-key"
+        "--host=https://your-server.example.com",
+        "--database=YourDatabase",
+        "--ottoApiKey=dk_your-api-key"
       ]
     }
   }
 }
 ```
-
-**Using environment variables:**
-```json
-{
-  "mcpServers": {
-    "fmodata": {
-      "command": "node",
-      "args": ["/path/to/fmodata-mcp/dist/index.js"],
-      "env": {
-        "FMODATA_HOST": "https://your-server.example.com",
-        "FMODATA_DATABASE": "YourDatabase",
-        "FMODATA_OTTO_API_KEY": "dk_your-api-key"
-      }
-    }
-  }
-}
-```
-
-**With Basic Auth:**
-```json
-{
-  "mcpServers": {
-    "fmodata": {
-      "command": "node",
-      "args": [
-        "/path/to/fmodata-mcp/dist/index.js",
-        "--host",
-        "https://your-server.example.com",
-        "--database",
-        "YourDatabase",
-        "--username",
-        "your-username",
-        "--password",
-        "your-password"
-      ]
-    }
-  }
-}
-```
-
-### HTTP Mode (Express Server)
-
-You can also run the server as an HTTP server on `localhost:3000`:
-
-**Start the HTTP server:**
-
-If installed globally:
-```bash
-fmodata-mcp --http --host=https://your-server.example.com --database=YourDatabase --ottoApiKey=dk_your-key
-```
-
-Or with npx:
-```bash
-npx @proofkit/fmodata-mcp --http --host=https://your-server.example.com --database=YourDatabase --ottoApiKey=dk_your-key
-```
-
-Or with Basic Auth:
-```bash
-fmodata-mcp --http --host=https://your-server.example.com --database=YourDatabase --username=your-user --password=your-pass
-```
-
-**Then configure MCP client to use the HTTP endpoint:**
-```json
-{
-  "mcpServers": {
-    "fmodata": {
-      "url": "http://localhost:3000/mcp"
-    }
-  }
-}
-```
-
-**Note:** When using HTTP mode, you can start the server with configuration via args (as shown above) or use environment variables. The server will run on port 3000 by default (or the port specified by the `PORT` environment variable).
 
 ## Available Tools
 
@@ -323,65 +149,88 @@ Assistant: [calls fmodata_create_record with table="Customers", data={...}]
           Successfully created customer with ID 12345
 ```
 
-## Self-Hosting (Optional)
+## HTTP Mode (Optional)
 
-If you want to deploy the server as a hosted service (e.g., on Railway, Fly.io, Render), you can run it in HTTP mode:
+You can also run the server as an HTTP server on `localhost:3000`:
 
-1. **Deploy the server** with your configuration:
+```bash
+npx -y fmodata-mcp --http --host=https://your-server.example.com --database=YourDatabase --ottoApiKey=dk_your-key
+```
+
+Then configure your MCP client to use the HTTP endpoint:
+
+```json
+{
+  "mcpServers": {
+    "fmodata": {
+      "url": "http://localhost:3000/mcp"
+    }
+  }
+}
+```
+
+## Deploying to Vercel
+
+To deploy the MCP server to Vercel for use with a URL:
+
+1. **Clone or fork the repository** and navigate to `packages/fmodata-mcp`
+
+2. **Deploy to Vercel**:
    ```bash
-   fmodata-mcp --http --host=YOUR_HOST --database=YOUR_DB --ottoApiKey=YOUR_KEY
+   # Install Vercel CLI if needed
+   npm i -g vercel
+   
+   # Deploy
+   vercel
    ```
 
-2. **Configure your MCP client** to use the HTTP endpoint:
+3. **Configure your MCP client** to use the Vercel URL with headers:
+   
+   **With Otto API Key:**
    ```json
    {
      "mcpServers": {
        "fmodata": {
-         "url": "https://your-deployed-server.com/mcp"
+         "url": "https://your-app.vercel.app/mcp",
+         "headers": {
+           "x-fmodata-host": "https://your-server.example.com",
+           "x-fmodata-database": "YourDatabase",
+           "x-fmodata-otto-api-key": "dk_your-api-key"
+         }
+       }
+     }
+   }
+   ```
+   
+   **With Basic Auth:**
+   ```json
+   {
+     "mcpServers": {
+       "fmodata": {
+         "url": "https://your-app.vercel.app/mcp",
+         "headers": {
+           "x-fmodata-host": "https://your-server.example.com",
+           "x-fmodata-database": "YourDatabase",
+           "x-fmodata-username": "your-username",
+           "x-fmodata-password": "your-password"
+         }
        }
      }
    }
    ```
 
-**Note:** Each user should deploy their own instance with their own credentials for security. Shared instances are not recommended.
+**Available Headers:**
+- `x-fmodata-host` or `fmodata-host` - FileMaker server host (required)
+- `x-fmodata-database` or `fmodata-database` or `x-fmodata-filename` or `fmodata-filename` - Database name (required)
+- `x-fmodata-otto-api-key` or `fmodata-otto-api-key` or `x-fmodata-api-key` or `fmodata-api-key` - Otto API key
+- `x-fmodata-otto-port` or `fmodata-otto-port` - Otto port (optional, only for Otto v3)
+- `x-fmodata-username` or `fmodata-username` - FileMaker username (for Basic Auth)
+- `x-fmodata-password` or `fmodata-password` - FileMaker password (for Basic Auth)
 
-## Publishing
+The server will be available at `https://your-app.vercel.app/mcp` and includes a health check endpoint at `https://your-app.vercel.app/health`.
 
-To publish a new version:
-
-```bash
-# Beta release
-pnpm pub:beta
-
-# Next/RC release
-pnpm pub:next
-
-# Production release
-pnpm pub:release
-```
-
-Or use the monorepo's changeset workflow:
-```bash
-pnpm changeset
-pnpm version-packages
-pnpm release
-```
-
-## Development
-
-### Building
-
-```bash
-pnpm run build
-```
-
-### Type Checking
-
-```bash
-pnpm run typecheck
-```
+**Note:** The Vercel deployment is a generic shell - credentials are passed per-request via headers, so no environment variables are needed. Session state is stored in memory and will reset on cold starts.
 
 ## License
 
 MIT
-

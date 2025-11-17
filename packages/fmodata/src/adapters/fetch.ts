@@ -39,4 +39,3 @@ export class FetchAdapter extends BaseFetchAdapter {
     return `Basic ${encoded}`;
   }
 }
-

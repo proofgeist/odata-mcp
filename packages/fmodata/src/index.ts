@@ -30,4 +30,3 @@ export * from "./adapters/core.js";
 export * from "./utils.js";
 
 export default ODataApi;
-

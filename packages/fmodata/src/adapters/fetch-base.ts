@@ -1,7 +1,4 @@
-import type {
-  BaseRequestOptions,
-  Adapter,
-} from "./core.js";
+import type { BaseRequestOptions, Adapter } from "./core.js";
 import type {
   ODataResponse,
   ODataEntityResponse,
@@ -185,7 +182,7 @@ export abstract class BaseFetchAdapter implements Adapter {
       let responseData: unknown;
       const contentType = response.headers.get("Content-Type") ?? "";
       const contentLength = response.headers.get("Content-Length");
-      
+
       // Handle empty responses (common for DELETE operations)
       // 204 No Content means no body
       if (response.status === 204) {
@@ -193,7 +190,7 @@ export abstract class BaseFetchAdapter implements Adapter {
       } else {
         // Try to read the response body
         const text = await response.text();
-        
+
         if (!text || text.trim() === "") {
           // Empty body
           responseData = null;
@@ -318,14 +315,14 @@ export abstract class BaseFetchAdapter implements Adapter {
     options?: GetRecordCountOptions,
   ): Promise<number> {
     const path = buildTablePath(this.database, table);
-    
+
     // Use custom query string for $filter to handle encoding properly
     let queryString = "$count=true";
     if (options?.$filter) {
       const encodedFilter = encodeODataFilter(options.$filter);
       queryString += `&$filter=${encodedFilter}`;
     }
-    
+
     // Use manual URL construction to avoid URLSearchParams encoding issues
     const baseUrlWithPath = new URL(path, this.baseUrl);
     const fetchUrl = `${baseUrlWithPath.toString()}?${queryString}`;
@@ -346,12 +343,7 @@ export abstract class BaseFetchAdapter implements Adapter {
     field: string,
     options?: GetFieldValueOptions,
   ): Promise<unknown> {
-    const path = buildFieldValuePath(
-      this.database,
-      table,
-      key,
-      field,
-    );
+    const path = buildFieldValuePath(this.database, table, key, field);
 
     return this.request<unknown>({
       path,
@@ -420,12 +412,7 @@ export abstract class BaseFetchAdapter implements Adapter {
     navigation: string,
     options: UpdateRecordReferencesOptions<T>,
   ): Promise<void> {
-    const path = buildNavigationPath(
-      this.database,
-      table,
-      key,
-      navigation,
-    );
+    const path = buildNavigationPath(this.database, table, key, navigation);
     const method = options.method ?? "POST";
 
     const data = Array.isArray(options.data) ? options.data : [options.data];
@@ -447,12 +434,7 @@ export abstract class BaseFetchAdapter implements Adapter {
     navigation: string,
     options?: NavigateRelatedOptions,
   ): Promise<ODataResponse<T>> {
-    const path = buildNavigationPath(
-      this.database,
-      table,
-      key,
-      navigation,
-    );
+    const path = buildNavigationPath(this.database, table, key, navigation);
     const query = buildQueryString(options ?? {});
 
     return this.request<ODataResponse<T>>({
@@ -604,4 +586,3 @@ export abstract class BaseFetchAdapter implements Adapter {
     throw new Error("Container upload not yet implemented");
   }
 }
-

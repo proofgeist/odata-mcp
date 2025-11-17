@@ -10,4 +10,3 @@ export type BaseFetchAdapterOptions = {
    */
   rejectUnauthorized?: boolean;
 };
-

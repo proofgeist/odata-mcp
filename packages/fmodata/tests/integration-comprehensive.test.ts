@@ -3,7 +3,12 @@ import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
 import { randomUUID } from "crypto";
-import { ODataApi, FetchAdapter, OttoAdapter, isOttoAPIKey } from "../src/index.js";
+import {
+  ODataApi,
+  FetchAdapter,
+  OttoAdapter,
+  isOttoAPIKey,
+} from "../src/index.js";
 import type { ODataRecord } from "../src/client-types.js";
 
 // Load .env file from workspace root
@@ -21,10 +26,22 @@ const TEST_TABLE_NAME_2 = "test_odata_integration_2";
 
 describe("Comprehensive OData Client Integration Tests", () => {
   const host = process.env.FMODATA_HOST?.trim().replace(/^["']|["']$/g, "");
-  const database = process.env.FMODATA_DATABASE?.trim().replace(/^["']|["']$/g, "");
-  const username = process.env.FMODATA_USERNAME?.trim().replace(/^["']|["']$/g, "");
-  const password = process.env.FMODATA_PASSWORD?.trim().replace(/^["']|["']$/g, "");
-  const ottoApiKey = process.env.FMODATA_OTTO_API_KEY?.trim().replace(/^["']|["']$/g, "");
+  const database = process.env.FMODATA_DATABASE?.trim().replace(
+    /^["']|["']$/g,
+    "",
+  );
+  const username = process.env.FMODATA_USERNAME?.trim().replace(
+    /^["']|["']$/g,
+    "",
+  );
+  const password = process.env.FMODATA_PASSWORD?.trim().replace(
+    /^["']|["']$/g,
+    "",
+  );
+  const ottoApiKey = process.env.FMODATA_OTTO_API_KEY?.trim().replace(
+    /^["']|["']$/g,
+    "",
+  );
   const ottoPort = process.env.FMODATA_OTTO_PORT
     ? parseInt(process.env.FMODATA_OTTO_PORT.trim(), 10)
     : undefined;
@@ -201,7 +218,8 @@ describe("Comprehensive OData Client Integration Tests", () => {
         // Try to get ID from various possible locations
         if (
           recordData.id &&
-          (typeof recordData.id === "string" || typeof recordData.id === "number")
+          (typeof recordData.id === "string" ||
+            typeof recordData.id === "number")
         ) {
           recordId = recordData.id;
         } else {
@@ -228,8 +246,13 @@ describe("Comprehensive OData Client Integration Tests", () => {
         expect((fetched.value as ODataRecord).name).toBe(testRecord.name);
         expect((fetched.value as ODataRecord).email).toBe(testRecord.email);
       } catch (error) {
-        if (error instanceof Error && error.message.includes("Primary key configuration error")) {
-          console.log("⚠️  Skipping CRUD test: Primary key field not configured (requires manual setup in FileMaker)");
+        if (
+          error instanceof Error &&
+          error.message.includes("Primary key configuration error")
+        ) {
+          console.log(
+            "⚠️  Skipping CRUD test: Primary key field not configured (requires manual setup in FileMaker)",
+          );
           return; // Skip this test if primary key isn't configured
         }
         throw error;
@@ -249,8 +272,13 @@ describe("Comprehensive OData Client Integration Tests", () => {
         expect((result.value as ODataRecord).id).toBe(createdRecordId);
         expect((result.value as ODataRecord).name).toBe("Test User");
       } catch (error) {
-        if (error instanceof Error && error.message.includes("Primary key configuration error")) {
-          console.log("⚠️  Skipping getRecord test: Primary key field not configured");
+        if (
+          error instanceof Error &&
+          error.message.includes("Primary key configuration error")
+        ) {
+          console.log(
+            "⚠️  Skipping getRecord test: Primary key field not configured",
+          );
           return;
         }
         throw error;
@@ -276,10 +304,17 @@ describe("Comprehensive OData Client Integration Tests", () => {
           createdRecordId,
         );
         expect((updated.value as ODataRecord).name).toBe("Updated User");
-        expect((updated.value as ODataRecord).email).toBe("updated@example.com");
+        expect((updated.value as ODataRecord).email).toBe(
+          "updated@example.com",
+        );
       } catch (error) {
-        if (error instanceof Error && error.message.includes("Primary key configuration error")) {
-          console.log("⚠️  Skipping updateRecord test: Primary key field not configured");
+        if (
+          error instanceof Error &&
+          error.message.includes("Primary key configuration error")
+        ) {
+          console.log(
+            "⚠️  Skipping updateRecord test: Primary key field not configured",
+          );
           return;
         }
         throw error;
@@ -297,8 +332,13 @@ describe("Comprehensive OData Client Integration Tests", () => {
         );
         expect(email).toBe("updated@example.com");
       } catch (error) {
-        if (error instanceof Error && error.message.includes("Primary key configuration error")) {
-          console.log("⚠️  Skipping getFieldValue test: Primary key field not configured");
+        if (
+          error instanceof Error &&
+          error.message.includes("Primary key configuration error")
+        ) {
+          console.log(
+            "⚠️  Skipping getFieldValue test: Primary key field not configured",
+          );
           return;
         }
         throw error;
@@ -320,8 +360,13 @@ describe("Comprehensive OData Client Integration Tests", () => {
           expect(error).toBeDefined();
         }
       } catch (error) {
-        if (error instanceof Error && error.message.includes("Primary key configuration error")) {
-          console.log("⚠️  Skipping deleteRecord test: Primary key field not configured");
+        if (
+          error instanceof Error &&
+          error.message.includes("Primary key configuration error")
+        ) {
+          console.log(
+            "⚠️  Skipping deleteRecord test: Primary key field not configured",
+          );
           return;
         }
         throw error;
@@ -414,8 +459,14 @@ describe("Comprehensive OData Client Integration Tests", () => {
         // Should not have email if not selected (may still appear due to OData metadata)
       } catch (error) {
         // FileMaker OData may not support $select on test tables or may have syntax issues
-        if (error instanceof Error && (error.message.includes("syntax error") || error.message.includes("select"))) {
-          console.log("⚠️  Skipping $select test: FileMaker OData syntax limitation");
+        if (
+          error instanceof Error &&
+          (error.message.includes("syntax error") ||
+            error.message.includes("select"))
+        ) {
+          console.log(
+            "⚠️  Skipping $select test: FileMaker OData syntax limitation",
+          );
           return;
         }
         throw error;
@@ -454,9 +505,13 @@ describe("Comprehensive OData Client Integration Tests", () => {
 
       // Verify different records (if enough exist)
       if (firstPage.value.length > 0 && secondPage.value.length > 0) {
-        const firstIds = firstPage.value.map((r) => r.id ?? r.ROWID ?? r["@odata.id"]).filter(Boolean);
-        const secondIds = secondPage.value.map((r) => r.id ?? r.ROWID ?? r["@odata.id"]).filter(Boolean);
-        
+        const firstIds = firstPage.value
+          .map((r) => r.id ?? r.ROWID ?? r["@odata.id"])
+          .filter(Boolean);
+        const secondIds = secondPage.value
+          .map((r) => r.id ?? r.ROWID ?? r["@odata.id"])
+          .filter(Boolean);
+
         // Only check if we have valid IDs to compare
         if (firstIds.length > 0 && secondIds.length > 0) {
           expect(firstIds).not.toEqual(secondIds);
@@ -493,7 +548,7 @@ describe("Comprehensive OData Client Integration Tests", () => {
 
       expect(result).toBeDefined();
       expect(result.value.length).toBeGreaterThan(0);
-      
+
       // Verify sorting
       const sales = result.value.map((r) => Number(r.totol_sales || 0));
       if (sales.length > 1) {
@@ -517,9 +572,14 @@ describe("Comprehensive OData Client Integration Tests", () => {
       // Navigate to contacts
       // Note: This may fail if the relationship expects numeric IDs but we have UUIDs
       try {
-        const contacts = await client.navigateRelated("customers", customerId, "contacts", {
-          $top: 5,
-        });
+        const contacts = await client.navigateRelated(
+          "customers",
+          customerId,
+          "contacts",
+          {
+            $top: 5,
+          },
+        );
 
         expect(contacts).toBeDefined();
         expect(contacts.value).toBeDefined();
@@ -527,7 +587,10 @@ describe("Comprehensive OData Client Integration Tests", () => {
         expect(Array.isArray(contacts.value)).toBe(true);
       } catch (error) {
         // Skip if schema doesn't support this relationship or data type mismatch
-        console.log("⚠️  Skipping navigateRelated test:", error instanceof Error ? error.message : String(error));
+        console.log(
+          "⚠️  Skipping navigateRelated test:",
+          error instanceof Error ? error.message : String(error),
+        );
       }
     });
 
@@ -540,7 +603,7 @@ describe("Comprehensive OData Client Integration Tests", () => {
       if (customers.value.length === 0) return;
 
       const customerId = customers.value[0].id as string | number;
-      
+
       // Try to create a contact - may fail if schema requires specific field types
       try {
         const testContact = {
@@ -561,14 +624,20 @@ describe("Comprehensive OData Client Integration Tests", () => {
         expect(contactId).toBeDefined();
 
         // Verify it was created
-        const fetched = await client.getRecord<ODataRecord>("contacts", contactId);
+        const fetched = await client.getRecord<ODataRecord>(
+          "contacts",
+          contactId,
+        );
         expect((fetched.value as ODataRecord).first_name).toBe("Test");
 
         // Cleanup
         await client.deleteRecord("contacts", contactId);
       } catch (error) {
         // Skip if schema doesn't support this or field types don't match
-        console.log("⚠️  Skipping contact creation test:", error instanceof Error ? error.message : String(error));
+        console.log(
+          "⚠️  Skipping contact creation test:",
+          error instanceof Error ? error.message : String(error),
+        );
       }
     });
   });
@@ -605,4 +674,3 @@ describe("Comprehensive OData Client Integration Tests", () => {
     });
   });
 });
-

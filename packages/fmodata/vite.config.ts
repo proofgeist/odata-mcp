@@ -14,4 +14,3 @@ export default mergeConfig(
     outDir: "./dist",
   }),
 );
-

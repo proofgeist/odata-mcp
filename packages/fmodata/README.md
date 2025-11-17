@@ -84,15 +84,19 @@ const client = ODataApi({
 ### Query Operations
 
 #### `getTables(options?)`
+
 Get list of all tables in the database.
 
 #### `getMetadata(options?)`
+
 Get OData metadata ($metadata endpoint).
 
 #### `getRecords(table, options?)`
+
 Query records from a table with optional filters.
 
 **Options:**
+
 - `$filter`: OData filter expression (e.g., `"Name eq 'John'"`)
 - `$select`: Comma-separated list of fields to select
 - `$expand`: Navigation properties to expand
@@ -103,73 +107,93 @@ Query records from a table with optional filters.
 - `$format`: Response format (`json`, `atom`, `xml`)
 
 #### `getRecord(table, key, options?)`
+
 Get a single record by primary key.
 
 #### `getRecordCount(table, options?)`
+
 Get count of records, optionally filtered.
 
 #### `getFieldValue(table, key, field, options?)`
+
 Get the value of a specific field.
 
 #### `navigateRelated(table, key, navigation, options?)`
+
 Navigate to related records through a navigation property.
 
 #### `crossJoin(tables, options?)`
+
 Perform a cross-join query between multiple tables.
 
 ### CRUD Operations
 
 #### `createRecord(table, options)`
+
 Create a new record.
 
 **Options:**
+
 - `data`: Record data as key-value pairs
 
 #### `updateRecord(table, key, options)`
+
 Update an existing record.
 
 **Options:**
+
 - `data`: Fields to update as key-value pairs
 
 #### `deleteRecord(table, key, options?)`
+
 Delete a record.
 
 ### Schema Operations
 
 #### `createTable(options)`
+
 Create a new table (schema modification).
 
 **Options:**
+
 - `tableName`: Name of the table
 - `fields`: Array of field definitions
 
 #### `addFields(table, options)`
+
 Add fields to an existing table.
 
 **Options:**
+
 - `fields`: Array of field definitions
 
 #### `deleteTable(table, options?)`
+
 Delete a table.
 
 #### `deleteField(table, field, options?)`
+
 Delete a field from a table.
 
 ### Script Execution
 
 #### `runScript(table, options)`
+
 Run a FileMaker script.
 
 **Options:**
+
 - `script`: Script name
 - `param`: Optional script parameter
 
 ### Batch Operations
 
 #### `batchRequests(options)`
+
 Execute multiple operations in a single batch request.
 
 **Options:**
+
 - `requests`: Array of request objects with `method`, `url`, `headers`, and `body`
 
 ## Error Handling
@@ -205,4 +229,3 @@ const record = await client.getRecord<MyRecord>("MyTable", "123");
 ## License
 
 MIT
-

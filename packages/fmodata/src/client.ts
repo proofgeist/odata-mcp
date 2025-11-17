@@ -266,4 +266,3 @@ type ODataApiInstance = ReturnType<
 export type ODataApiClient = ODataApiInstance;
 
 export default ODataApi;
-

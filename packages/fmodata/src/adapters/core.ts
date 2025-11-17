@@ -67,7 +67,10 @@ export interface Adapter {
   /**
    * Get the count of records matching a filter
    */
-  getRecordCount(table: string, options?: GetRecordCountOptions): Promise<number>;
+  getRecordCount(
+    table: string,
+    options?: GetRecordCountOptions,
+  ): Promise<number>;
 
   /**
    * Get a specific field value from a record
@@ -99,7 +102,11 @@ export interface Adapter {
   /**
    * Delete a record by primary key
    */
-  deleteRecord(table: string, key: string | number, options?: DeleteRecordOptions): Promise<void>;
+  deleteRecord(
+    table: string,
+    key: string | number,
+    options?: DeleteRecordOptions,
+  ): Promise<void>;
 
   /**
    * Update record references (relationships)
@@ -152,7 +159,11 @@ export interface Adapter {
   /**
    * Delete a field from a table (schema modification)
    */
-  deleteField(table: string, field: string, options?: DeleteFieldOptions): Promise<void>;
+  deleteField(
+    table: string,
+    field: string,
+    options?: DeleteFieldOptions,
+  ): Promise<void>;
 
   /**
    * Run a FileMaker script
@@ -169,4 +180,3 @@ export interface Adapter {
     options: UploadContainerOptions,
   ): Promise<void>;
 }
-

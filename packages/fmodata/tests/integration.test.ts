@@ -2,7 +2,12 @@ import { describe, it, expect, beforeAll } from "vitest";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
-import { ODataApi, FetchAdapter, OttoAdapter, isOttoAPIKey } from "../src/index.js";
+import {
+  ODataApi,
+  FetchAdapter,
+  OttoAdapter,
+  isOttoAPIKey,
+} from "../src/index.js";
 
 // Load .env file from workspace root
 const __filename = fileURLToPath(import.meta.url);
@@ -53,24 +58,47 @@ function logRequest(method: string, url: string, options?: RequestInit) {
     console.log("Headers:", JSON.stringify(headersObj, null, 2));
   }
   if (options?.body) {
-    console.log("Body:", typeof options.body === "string" ? options.body : JSON.stringify(options.body, null, 2));
+    console.log(
+      "Body:",
+      typeof options.body === "string"
+        ? options.body
+        : JSON.stringify(options.body, null, 2),
+    );
   }
 }
 
-function logResponse(status: number, statusText: string, headers: Headers, body: unknown) {
+function logResponse(
+  status: number,
+  statusText: string,
+  headers: Headers,
+  body: unknown,
+) {
   console.log("\n=== RESPONSE ===");
   console.log(`Status: ${status} ${statusText}`);
-  console.log("Headers:", JSON.stringify(Object.fromEntries(headers.entries()), null, 2));
+  console.log(
+    "Headers:",
+    JSON.stringify(Object.fromEntries(headers.entries()), null, 2),
+  );
   console.log("Body:", JSON.stringify(body, null, 2));
   console.log("================\n");
 }
 
 // Create a fetch wrapper with logging
 function createLoggingFetch(originalFetch: typeof fetch): typeof fetch {
-  return async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
-    const method = init?.method || (typeof input === "object" && "method" in input ? input.method : "GET");
-    
+  return async (
+    input: RequestInfo | URL,
+    init?: RequestInit,
+  ): Promise<Response> => {
+    const url =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+          ? input.toString()
+          : input.url;
+    const method =
+      init?.method ||
+      (typeof input === "object" && "method" in input ? input.method : "GET");
+
     logRequest(method, url, init);
 
     // Add a timeout to detect hanging requests
@@ -87,20 +115,23 @@ function createLoggingFetch(originalFetch: typeof fetch): typeof fetch {
         ...init,
         signal: controller.signal,
       });
-      
+
       clearTimeout(timeoutId);
       const clonedResponse = response.clone();
-      
+
       let body: unknown;
       const contentType = response.headers.get("content-type") || "";
-      
+
       if (contentType.includes("application/json")) {
         try {
           body = await clonedResponse.json();
         } catch {
           body = await clonedResponse.text();
         }
-      } else if (contentType.includes("application/xml") || contentType.includes("text/xml")) {
+      } else if (
+        contentType.includes("application/xml") ||
+        contentType.includes("text/xml")
+      ) {
         body = await clonedResponse.text();
       } else {
         body = await clonedResponse.text();
@@ -128,10 +159,22 @@ function createLoggingFetch(originalFetch: typeof fetch): typeof fetch {
 
 describe("Integration Tests", () => {
   const host = process.env.FMODATA_HOST?.trim().replace(/^["']|["']$/g, "");
-  const database = process.env.FMODATA_DATABASE?.trim().replace(/^["']|["']$/g, "");
-  const username = process.env.FMODATA_USERNAME?.trim().replace(/^["']|["']$/g, "");
-  const password = process.env.FMODATA_PASSWORD?.trim().replace(/^["']|["']$/g, "");
-  const ottoApiKey = process.env.FMODATA_OTTO_API_KEY?.trim().replace(/^["']|["']$/g, "");
+  const database = process.env.FMODATA_DATABASE?.trim().replace(
+    /^["']|["']$/g,
+    "",
+  );
+  const username = process.env.FMODATA_USERNAME?.trim().replace(
+    /^["']|["']$/g,
+    "",
+  );
+  const password = process.env.FMODATA_PASSWORD?.trim().replace(
+    /^["']|["']$/g,
+    "",
+  );
+  const ottoApiKey = process.env.FMODATA_OTTO_API_KEY?.trim().replace(
+    /^["']|["']$/g,
+    "",
+  );
   const ottoPort = process.env.FMODATA_OTTO_PORT
     ? parseInt(process.env.FMODATA_OTTO_PORT.trim(), 10)
     : undefined;
@@ -143,7 +186,9 @@ describe("Integration Tests", () => {
     // This must be set before any TLS connections are made
     if (host && host.includes("localhost")) {
       process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-      console.log("⚠️  SSL verification disabled for localhost (development only)");
+      console.log(
+        "⚠️  SSL verification disabled for localhost (development only)",
+      );
     }
 
     // Replace global fetch with logging version
@@ -211,8 +256,12 @@ describe("Integration Tests", () => {
     it("should retrieve metadata", async () => {
       console.log("\n🧪 Testing getMetadata()");
       const result = await client.getMetadata();
-      console.log("✅ getMetadata result (first 500 chars):", 
-        typeof result === "string" ? result.substring(0, 500) : JSON.stringify(result).substring(0, 500));
+      console.log(
+        "✅ getMetadata result (first 500 chars):",
+        typeof result === "string"
+          ? result.substring(0, 500)
+          : JSON.stringify(result).substring(0, 500),
+      );
       expect(result).toBeDefined();
       expect(typeof result === "string").toBe(true);
     });
@@ -221,7 +270,7 @@ describe("Integration Tests", () => {
   describe("getRecords", () => {
     it("should query records from a table", async () => {
       console.log("\n🧪 Testing getRecords()");
-      
+
       // First, get tables to find a table to query
       const tables = await client.getTables();
       if (tables.value.length === 0) {
@@ -248,7 +297,7 @@ describe("Integration Tests", () => {
   describe("getRecordCount", () => {
     it("should get record count for a table", async () => {
       console.log("\n🧪 Testing getRecordCount()");
-      
+
       // First, get tables to find a table
       const tables = await client.getTables();
       if (tables.value.length === 0) {
@@ -270,4 +319,3 @@ describe("Integration Tests", () => {
     });
   });
 });
-

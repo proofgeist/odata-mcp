@@ -212,10 +212,7 @@ export function encodeKey(key: string | number): string {
 /**
  * Enhance error message with helpful context for known FileMaker error codes
  */
-function enhanceErrorMessage(
-  code: string,
-  originalMessage: string,
-): string {
+function enhanceErrorMessage(code: string, originalMessage: string): string {
   // FileMaker error codes that need better descriptions
   const errorCodeEnhancements: Record<string, string> = {
     "8309": `Primary key configuration error: The table's primary key field must be configured with both "Required value" and "Unique value" options enabled. ${originalMessage}`,
@@ -248,11 +245,20 @@ export function parseErrorResponse(
   data: unknown,
 ): { code: string; message: string; target?: string; details?: unknown[] } {
   if (data && typeof data === "object" && "error" in data) {
-    const error = (data as { error: { code: string; message: string; target?: string; details?: unknown[] } }).error;
+    const error = (
+      data as {
+        error: {
+          code: string;
+          message: string;
+          target?: string;
+          details?: unknown[];
+        };
+      }
+    ).error;
     const code = error.code ?? response.status.toString();
     const originalMessage = error.message ?? response.statusText;
     const enhancedMessage = enhanceErrorMessage(code, originalMessage);
-    
+
     return {
       code,
       message: enhancedMessage,
@@ -270,4 +276,3 @@ export function parseErrorResponse(
     message: enhancedMessage,
   };
 }
-

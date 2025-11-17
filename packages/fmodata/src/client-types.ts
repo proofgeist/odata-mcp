@@ -132,10 +132,11 @@ export type CrossJoinOptions = QueryOptions & RequestOptions;
 /**
  * Options for updating record references (relationships)
  */
-export type UpdateRecordReferencesOptions<T extends ODataRecord = ODataRecord> = {
-  data: T | T[];
-  method?: "POST" | "PATCH" | "DELETE";
-} & RequestOptions;
+export type UpdateRecordReferencesOptions<T extends ODataRecord = ODataRecord> =
+  {
+    data: T | T[];
+    method?: "POST" | "PATCH" | "DELETE";
+  } & RequestOptions;
 
 /**
  * Options for batch requests
@@ -262,7 +263,12 @@ export class FileMakerODataError extends Error {
   public readonly target?: string;
   public readonly details?: ODataError["error"]["details"];
 
-  public constructor(code: string, message: string, target?: string, details?: ODataError["error"]["details"]) {
+  public constructor(
+    code: string,
+    message: string,
+    target?: string,
+    details?: ODataError["error"]["details"],
+  ) {
     super(message);
     this.name = "FileMakerODataError";
     this.code = code;
@@ -278,4 +284,3 @@ export class FileMakerODataError extends Error {
     return new FileMakerODataError(code, message, target, details);
   }
 }
-
