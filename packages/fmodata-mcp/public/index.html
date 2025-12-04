@@ -725,6 +725,7 @@
             <h2><span class="icon">🛠</span> Available Tools</h2>
             <p>Once connected, your AI assistant can use these FileMaker operations:</p>
 
+            <h4>Database Structure</h4>
             <div class="tools-grid">
                 <div class="tool-item">
                     <span class="tool-name">fmodata_list_tables</span>
@@ -734,6 +735,10 @@
                     <span class="tool-name">fmodata_get_metadata</span>
                     <span class="tool-desc">Get OData schema metadata</span>
                 </div>
+            </div>
+
+            <h4>Data Query</h4>
+            <div class="tools-grid">
                 <div class="tool-item">
                     <span class="tool-name">fmodata_query_records</span>
                     <span class="tool-desc">Query with filters, sorting, pagination</span>
@@ -742,6 +747,26 @@
                     <span class="tool-name">fmodata_get_record</span>
                     <span class="tool-desc">Get a single record by key</span>
                 </div>
+                <div class="tool-item">
+                    <span class="tool-name">fmodata_get_record_count</span>
+                    <span class="tool-desc">Get count of records (optionally filtered)</span>
+                </div>
+                <div class="tool-item">
+                    <span class="tool-name">fmodata_get_field_value</span>
+                    <span class="tool-desc">Get a specific field value from a record</span>
+                </div>
+                <div class="tool-item">
+                    <span class="tool-name">fmodata_navigate_related</span>
+                    <span class="tool-desc">Navigate to related records via relationships</span>
+                </div>
+                <div class="tool-item">
+                    <span class="tool-name">fmodata_cross_join</span>
+                    <span class="tool-desc">Perform cross-join query between tables</span>
+                </div>
+            </div>
+
+            <h4>Data Modification</h4>
+            <div class="tools-grid">
                 <div class="tool-item">
                     <span class="tool-name">fmodata_create_record</span>
                     <span class="tool-desc">Create a new record</span>
@@ -754,9 +779,37 @@
                     <span class="tool-name">fmodata_delete_record</span>
                     <span class="tool-desc">Delete a record</span>
                 </div>
+            </div>
+
+            <h4>Schema Operations</h4>
+            <div class="tools-grid">
+                <div class="tool-item">
+                    <span class="tool-name">fmodata_create_table</span>
+                    <span class="tool-desc">Create a new table</span>
+                </div>
+                <div class="tool-item">
+                    <span class="tool-name">fmodata_add_fields</span>
+                    <span class="tool-desc">Add fields to an existing table</span>
+                </div>
+                <div class="tool-item">
+                    <span class="tool-name">fmodata_delete_table</span>
+                    <span class="tool-desc">Delete a table</span>
+                </div>
+                <div class="tool-item">
+                    <span class="tool-name">fmodata_delete_field</span>
+                    <span class="tool-desc">Delete a field from a table</span>
+                </div>
+            </div>
+
+            <h4>Scripts & Batch</h4>
+            <div class="tools-grid">
                 <div class="tool-item">
                     <span class="tool-name">fmodata_run_script</span>
                     <span class="tool-desc">Execute a FileMaker script</span>
+                </div>
+                <div class="tool-item">
+                    <span class="tool-name">fmodata_batch</span>
+                    <span class="tool-desc">Execute multiple operations in a batch</span>
                 </div>
             </div>
         </section>
