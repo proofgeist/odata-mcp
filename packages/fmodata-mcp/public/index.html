@@ -82,24 +82,6 @@
             animation: fadeInUp 0.6s var(--transition-default) backwards;
         }
 
-        .logo {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--accent-gradient);
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-        }
-
         h1 {
             font-size: 2rem;
             font-weight: 700;
@@ -649,10 +631,7 @@
 <body>
     <div class="container">
         <header>
-            <div class="logo">
-                <div class="logo-icon">📊</div>
-                <h1>FileMaker OData MCP</h1>
-            </div>
+            <h1>FileMaker OData MCP</h1>
             <p class="tagline">Connect AI assistants to FileMaker databases</p>
         </header>
 
@@ -683,15 +662,9 @@
                     </div>
 
                     <div id="apiKeyFields" class="auth-fields active">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="apiKey">API Key</label>
-                                <input type="text" id="apiKey" placeholder="dk_... or KEY_...">
-                            </div>
-                            <div class="form-group">
-                                <label for="ottoPort">Port <span class="hint">(Otto v3 only)</span></label>
-                                <input type="text" id="ottoPort" placeholder="3030">
-                            </div>
+                        <div class="form-group">
+                            <label for="apiKey">API Key</label>
+                            <input type="text" id="apiKey" placeholder="dk_... or KEY_...">
                         </div>
                     </div>
 
@@ -842,7 +815,6 @@
                     <p><strong>Otto API Key:</strong></p>
                     <ul>
                         <li><code>--ottoApiKey</code> — Your Otto API key (<code>dk_</code> for OttoFMS, <code>KEY_</code> for Otto v3)</li>
-                        <li><code>--ottoPort</code> — Otto port (only for Otto v3, default 3030)</li>
                     </ul>
 
                     <p><strong>Basic Auth:</strong></p>
@@ -903,9 +875,7 @@
 
             if (currentAuthMethod === 'apiKey') {
                 const apiKey = document.getElementById('apiKey').value.trim();
-                const ottoPort = document.getElementById('ottoPort').value.trim();
                 if (apiKey) args.push('--ottoApiKey', apiKey);
-                if (ottoPort) args.push('--ottoPort', ottoPort);
             } else {
                 const username = document.getElementById('username').value.trim();
                 const password = document.getElementById('password').value.trim();
