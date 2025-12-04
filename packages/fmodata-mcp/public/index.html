@@ -4,452 +4,699 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FileMaker OData MCP Server</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-primary: #0a0a0b;
+            --bg-secondary: #131316;
+            --bg-tertiary: #1a1a1f;
+            --bg-elevated: #202027;
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-default: rgba(255, 255, 255, 0.1);
+            --border-strong: rgba(255, 255, 255, 0.15);
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #8b5cf6;
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-default: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 2rem;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-        
+
+        /* Subtle grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 64px 64px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
         .container {
-            max-width: 900px;
+            max-width: 800px;
             margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
+            padding: 3rem 1.5rem 4rem;
         }
-        
+
+        /* Header */
         header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 3rem 2rem;
             text-align: center;
+            margin-bottom: 4rem;
+            animation: fadeInUp 0.6s var(--transition-default) backwards;
         }
-        
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-gradient);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        
-        .subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
+
+        .tagline {
+            color: var(--text-secondary);
+            font-size: 1.0625rem;
+            margin-top: 0.5rem;
         }
-        
-        .content {
-            padding: 2rem;
+
+        /* Section styling */
+        section {
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.6s var(--transition-default) backwards;
         }
-        
+
+        section:nth-child(2) { animation-delay: 0.1s; }
+        section:nth-child(3) { animation-delay: 0.15s; }
+        section:nth-child(4) { animation-delay: 0.2s; }
+        section:nth-child(5) { animation-delay: 0.25s; }
+
         h2 {
-            color: #667eea;
-            margin-top: 2rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
             margin-bottom: 1rem;
-            font-size: 1.8rem;
-        }
-        
-        h3 {
-            color: #764ba2;
-            margin-top: 1.5rem;
-            margin-bottom: 0.75rem;
-            font-size: 1.3rem;
-        }
-        
-        p {
-            margin-bottom: 1rem;
-        }
-        
-        code {
-            background: #f4f4f4;
-            padding: 0.2rem 0.4rem;
-            border-radius: 3px;
-            font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 0.9em;
-        }
-        
-        pre {
-            background: #2d2d2d;
-            color: #f8f8f2;
-            padding: 1.5rem;
-            border-radius: 6px;
-            overflow-x: auto;
-            margin: 1rem 0;
-            font-size: 0.9rem;
-        }
-        
-        pre code {
-            background: none;
-            padding: 0;
-            color: inherit;
-        }
-        
-        ul {
-            margin-left: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        li {
-            margin-bottom: 0.5rem;
-        }
-        
-        .badge {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            margin-left: 0.5rem;
-        }
-        
-        .warning {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 4px;
-        }
-        
-        .info {
-            background: #d1ecf1;
-            border-left: 4px solid #17a2b8;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 4px;
-        }
-        
-        .tool-list {
-            display: grid;
+            display: flex;
+            align-items: center;
             gap: 0.5rem;
-            margin: 1rem 0;
         }
-        
-        .tool-item {
-            background: #f8f9fa;
-            padding: 0.75rem;
-            border-radius: 6px;
-            border-left: 3px solid #667eea;
+
+        h2 .icon {
+            font-size: 1.125rem;
         }
-        
-        .tool-name {
-            font-weight: 600;
-            color: #667eea;
-            font-family: monospace;
-        }
-        
-        footer {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            text-align: center;
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        .step-number {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            width: 2rem;
-            height: 2rem;
-            line-height: 2rem;
-            border-radius: 50%;
-            text-align: center;
-            font-weight: bold;
-            margin-right: 0.5rem;
-        }
-        
-        /* Config Generator Styles */
-        .config-generator {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 12px;
-            padding: 2rem;
-            margin: 2rem 0;
-            border: 1px solid #dee2e6;
-        }
-        
-        .config-generator h3 {
-            margin-top: 0;
-            color: #667eea;
-        }
-        
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #495057;
-        }
-        
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
+
+        h3 {
             font-size: 1rem;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
         }
-        
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+
+        h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
         }
-        
-        .form-group input::placeholder {
-            color: #adb5bd;
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
         }
-        
-        .form-row {
+
+        /* Cards */
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            transition: border-color var(--transition-default), box-shadow var(--transition-default);
+        }
+
+        .card:hover {
+            border-color: var(--border-default);
+        }
+
+        .card-highlight {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        /* Form styles */
+        .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1rem;
         }
-        
-        @media (max-width: 600px) {
-            .form-row {
+
+        @media (max-width: 560px) {
+            .form-grid {
                 grid-template-columns: 1fr;
             }
         }
-        
-        .auth-toggle {
-            display: flex;
-            gap: 0.5rem;
+
+        .form-group {
             margin-bottom: 1rem;
         }
-        
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.375rem;
+        }
+
+        label .hint {
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.875rem;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        input::placeholder {
+            color: var(--text-muted);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        /* Auth toggle */
+        .auth-toggle {
+            display: flex;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            padding: 0.25rem;
+            gap: 0.25rem;
+            margin-bottom: 1rem;
+        }
+
         .auth-toggle button {
             flex: 1;
-            padding: 0.75rem 1rem;
-            border: 2px solid #dee2e6;
-            background: white;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.2s;
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: none;
+            border-radius: calc(var(--radius-sm) - 2px);
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 0.8125rem;
             font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
         }
-        
+
         .auth-toggle button:hover {
-            border-color: #667eea;
+            color: var(--text-secondary);
         }
-        
+
         .auth-toggle button.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-sm);
         }
-        
+
         .auth-fields {
             display: none;
-            animation: fadeIn 0.3s ease;
+            animation: fadeIn 0.2s ease;
         }
-        
+
         .auth-fields.active {
             display: block;
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
+
+        /* Buttons */
         .button-group {
             display: flex;
-            gap: 1rem;
+            gap: 0.75rem;
             margin-top: 1.5rem;
-            flex-wrap: wrap;
         }
-        
+
+        @media (max-width: 480px) {
+            .button-group {
+                flex-direction: column;
+            }
+        }
+
         .btn {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 0.5rem;
-            padding: 0.875rem 1.5rem;
+            padding: 0.6875rem 1.25rem;
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all var(--transition-fast);
             text-decoration: none;
         }
-        
-        .btn-cursor {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: white;
+
+        .btn-primary {
+            background: var(--text-primary);
+            color: var(--bg-primary);
         }
-        
-        .btn-cursor:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(26, 26, 46, 0.4);
+
+        .btn-primary:hover {
+            background: #e4e4e7;
+            transform: translateY(-1px);
         }
-        
-        .btn-claude {
-            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-            color: white;
+
+        .btn-primary:active {
+            transform: translateY(0);
         }
-        
-        .btn-claude:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4);
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-default);
         }
-        
-        .btn-copy {
-            background: #6c757d;
-            color: white;
+
+        .btn-secondary:hover {
+            background: var(--bg-elevated);
+            border-color: var(--border-strong);
         }
-        
-        .btn-copy:hover {
-            background: #5a6268;
+
+        .btn-icon {
+            width: 18px;
+            height: 18px;
         }
-        
-        .btn-copy.copied {
-            background: #28a745;
-        }
-        
+
+        /* Config output */
         .config-output {
             margin-top: 1.5rem;
             display: none;
+            animation: fadeIn 0.3s ease;
         }
-        
+
         .config-output.visible {
             display: block;
         }
-        
-        .config-output-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-        
-        .config-output-header h4 {
-            margin: 0;
-            color: #495057;
-        }
-        
-        .config-output pre {
-            margin: 0;
-            position: relative;
-        }
-        
+
         .config-tabs {
             display: flex;
             gap: 0.25rem;
             margin-bottom: -1px;
+            position: relative;
+            z-index: 1;
         }
-        
+
         .config-tab {
             padding: 0.5rem 1rem;
-            background: #dee2e6;
-            border: none;
-            border-radius: 6px 6px 0 0;
-            cursor: pointer;
-            font-size: 0.9rem;
+            background: transparent;
+            border: 1px solid transparent;
+            border-bottom: none;
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 0.8125rem;
             font-weight: 500;
-            transition: all 0.2s;
+            cursor: pointer;
+            transition: all var(--transition-fast);
         }
-        
+
+        .config-tab:hover {
+            color: var(--text-secondary);
+        }
+
         .config-tab.active {
-            background: #2d2d2d;
-            color: #f8f8f2;
+            background: var(--bg-tertiary);
+            border-color: var(--border-default);
+            color: var(--text-primary);
         }
-        
-        .config-tab:hover:not(.active) {
-            background: #ced4da;
+
+        .config-box {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-default);
+            border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
+            overflow: hidden;
         }
-        
+
+        .config-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--bg-elevated);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
         .config-path {
-            font-size: 0.85rem;
-            color: #6c757d;
-            margin-top: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
         }
-        
-        .success-message {
-            background: #d4edda;
-            border-left: 4px solid #28a745;
+
+        .btn-copy {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+            background: transparent;
+            border: 1px solid var(--border-default);
+            color: var(--text-secondary);
+        }
+
+        .btn-copy:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .btn-copy.copied {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        pre {
+            margin: 0;
             padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 4px;
-            display: none;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8125rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
         }
-        
-        .success-message.visible {
-            display: block;
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        /* Inline code */
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8125rem;
+            background: var(--bg-tertiary);
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            color: var(--accent-primary);
+        }
+
+        /* Notice boxes */
+        .notice {
+            padding: 0.875rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            margin: 1rem 0;
+        }
+
+        .notice-info {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid var(--accent-primary);
+            color: var(--text-secondary);
+        }
+
+        .notice-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 3px solid var(--warning);
+            color: var(--text-secondary);
+        }
+
+        .notice strong {
+            color: var(--text-primary);
+        }
+
+        /* Lists */
+        ul {
+            list-style: none;
+            margin: 0.75rem 0;
+        }
+
+        li {
+            position: relative;
+            padding-left: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.625rem;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        /* Tools grid */
+        .tools-grid {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .tool-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            transition: background var(--transition-fast);
+        }
+
+        .tool-item:hover {
+            background: var(--bg-elevated);
+        }
+
+        .tool-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--accent-primary);
+            white-space: nowrap;
+        }
+
+        .tool-desc {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+        }
+
+        /* Collapsible sections */
+        details {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        summary {
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background var(--transition-fast);
+        }
+
+        summary:hover {
+            background: var(--bg-tertiary);
+        }
+
+        summary::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid var(--text-muted);
+            transition: transform var(--transition-fast);
+        }
+
+        details[open] summary::after {
+            transform: rotate(180deg);
+        }
+
+        details > div {
+            padding: 0 1.25rem 1.25rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-subtle);
+            animation: fadeInUp 0.6s var(--transition-default) 0.3s backwards;
+        }
+
+        footer p {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color var(--transition-fast);
+        }
+
+        footer a:hover {
+            color: var(--text-primary);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Links */
+        a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            transition: color var(--transition-fast);
+        }
+
+        a:hover {
+            color: var(--accent-secondary);
+        }
+
+        /* Success message */
+        .success-banner {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: var(--radius-sm);
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: var(--success);
             animation: fadeIn 0.3s ease;
         }
-        
-        .icon-cursor {
-            width: 20px;
-            height: 20px;
+
+        .success-banner.visible {
+            display: flex;
+        }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: var(--border-subtle);
+            margin: 2rem 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>📊 FileMaker OData MCP Server</h1>
-            <p class="subtitle">Connect your AI assistants to FileMaker databases via OData</p>
+            <div class="logo">
+                <div class="logo-icon">📊</div>
+                <h1>FileMaker OData MCP</h1>
+            </div>
+            <p class="tagline">Connect AI assistants to FileMaker databases</p>
         </header>
-        
-        <div class="content">
-            <h2>🚀 Quick Setup</h2>
-            <p>This MCP server allows AI assistants like Claude Desktop and Cursor to interact with FileMaker databases through the OData API.</p>
-            
-            <!-- Configuration Generator -->
-            <div class="config-generator">
-                <h3>⚡ Quick Install</h3>
-                <p>Enter your FileMaker server details below, then click to add to your AI assistant.</p>
-                
+
+        <!-- Quick Install Section -->
+        <section>
+            <div class="card card-highlight">
+                <h2><span class="icon">⚡</span> Quick Install</h2>
+                <p>Enter your FileMaker server details to generate a configuration.</p>
+
                 <form id="configForm">
-                    <div class="form-row">
+                    <div class="form-grid">
                         <div class="form-group">
                             <label for="serverHost">Server Host</label>
-                            <input type="url" id="serverHost" placeholder="https://your-filemaker-server.com" required>
+                            <input type="url" id="serverHost" placeholder="https://your-server.com" required>
                         </div>
                         <div class="form-group">
                             <label for="database">Database Name</label>
                             <input type="text" id="database" placeholder="YourDatabase" required>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
-                        <label>Authentication Method</label>
+                        <label>Authentication</label>
                         <div class="auth-toggle">
                             <button type="button" class="active" data-auth="apiKey">Otto API Key</button>
-                            <button type="button" data-auth="basic">Username / Password</button>
+                            <button type="button" data-auth="basic">Username & Password</button>
                         </div>
                     </div>
-                    
+
                     <div id="apiKeyFields" class="auth-fields active">
-                        <div class="form-row">
+                        <div class="form-grid">
                             <div class="form-group">
-                                <label for="apiKey">Otto API Key</label>
-                                <input type="text" id="apiKey" placeholder="dk_your-api-key or KEY_your-api-key">
+                                <label for="apiKey">API Key</label>
+                                <input type="text" id="apiKey" placeholder="dk_... or KEY_...">
                             </div>
                             <div class="form-group">
-                                <label for="ottoPort">Otto Port <span style="font-weight: normal; color: #6c757d;">(optional, Otto v3 only)</span></label>
+                                <label for="ottoPort">Port <span class="hint">(Otto v3 only)</span></label>
                                 <input type="text" id="ottoPort" placeholder="3030">
                             </div>
                         </div>
                     </div>
-                    
+
                     <div id="basicAuthFields" class="auth-fields">
-                        <div class="form-row">
+                        <div class="form-grid">
                             <div class="form-group">
                                 <label for="username">Username</label>
                                 <input type="text" id="username" placeholder="your-username">
@@ -460,57 +707,95 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="button-group">
-                        <button type="button" class="btn btn-cursor" onclick="addToCursor()">
-                            <svg class="icon-cursor" viewBox="0 0 24 24" fill="currentColor"><path d="M5.5 3l13 10-13 10V3z"/></svg>
+                        <button type="button" class="btn btn-primary" onclick="addToCursor()">
+                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                            </svg>
                             Add to Cursor
                         </button>
-                        <button type="button" class="btn btn-claude" onclick="addToClaude()">
-                            <svg class="icon-cursor" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+                        <button type="button" class="btn btn-secondary" onclick="addToClaude()">
+                            <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+                            </svg>
                             Add to Claude Desktop
                         </button>
                     </div>
                 </form>
-                
-                <div id="successMessage" class="success-message">
-                    <strong>✅ Configuration generated!</strong> If the app didn't open automatically, copy the configuration below and add it to your config file.
+
+                <div id="successBanner" class="success-banner">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 6L9 17l-5-5"/>
+                    </svg>
+                    Configuration generated — copy below or check if the app opened
                 </div>
-                
+
                 <div id="configOutput" class="config-output">
                     <div class="config-tabs">
                         <button class="config-tab active" data-target="cursor" onclick="switchConfigTab('cursor')">Cursor</button>
                         <button class="config-tab" data-target="claude" onclick="switchConfigTab('claude')">Claude Desktop</button>
                     </div>
-                    <div class="config-output-header">
-                        <button class="btn btn-copy" onclick="copyConfig()">📋 Copy Configuration</button>
+                    <div class="config-box">
+                        <div class="config-header">
+                            <span id="configPath" class="config-path">~/.cursor/mcp.json</span>
+                            <button class="btn btn-copy" onclick="copyConfig()">Copy</button>
+                        </div>
+                        <pre><code id="configCode"></code></pre>
                     </div>
-                    <pre><code id="configCode"></code></pre>
-                    <p id="configPath" class="config-path"></p>
                 </div>
             </div>
-            
-            <h2>📖 Manual Setup</h2>
-            
-            <div class="info">
-                <strong>📝 Note:</strong> This server uses <code>npx</code> to run without installation. You'll configure it by providing your FileMaker server details, database name, and credentials as command-line arguments in your MCP client configuration.
+        </section>
+
+        <!-- Available Tools -->
+        <section>
+            <h2><span class="icon">🛠</span> Available Tools</h2>
+            <p>Once connected, your AI assistant can use these FileMaker operations:</p>
+
+            <div class="tools-grid">
+                <div class="tool-item">
+                    <span class="tool-name">fmodata_list_tables</span>
+                    <span class="tool-desc">Get all tables in the database</span>
+                </div>
+                <div class="tool-item">
+                    <span class="tool-name">fmodata_get_metadata</span>
+                    <span class="tool-desc">Get OData schema metadata</span>
+                </div>
+                <div class="tool-item">
+                    <span class="tool-name">fmodata_query_records</span>
+                    <span class="tool-desc">Query with filters, sorting, pagination</span>
+                </div>
+                <div class="tool-item">
+                    <span class="tool-name">fmodata_get_record</span>
+                    <span class="tool-desc">Get a single record by key</span>
+                </div>
+                <div class="tool-item">
+                    <span class="tool-name">fmodata_create_record</span>
+                    <span class="tool-desc">Create a new record</span>
+                </div>
+                <div class="tool-item">
+                    <span class="tool-name">fmodata_update_record</span>
+                    <span class="tool-desc">Update an existing record</span>
+                </div>
+                <div class="tool-item">
+                    <span class="tool-name">fmodata_delete_record</span>
+                    <span class="tool-desc">Delete a record</span>
+                </div>
+                <div class="tool-item">
+                    <span class="tool-name">fmodata_run_script</span>
+                    <span class="tool-desc">Execute a FileMaker script</span>
+                </div>
             </div>
-            
-            <h3><span class="step-number">1</span>Gather Your FileMaker Details</h3>
-            <p>You'll need:</p>
-            <ul>
-                <li><strong>Server Host:</strong> Your FileMaker server URL (e.g., <code>https://your-server.com</code>)</li>
-                <li><strong>Database Name:</strong> The FileMaker database/filename</li>
-                <li><strong>Credentials:</strong> Either username/password OR Otto API key</li>
-            </ul>
-            
-            <h3><span class="step-number">2</span>Configure Your AI Assistant</h3>
-            
-            <h4>For Cursor IDE</h4>
-            <p>Add this to your <code>~/.cursor/mcp.json</code> file:</p>
-            
-            <p><strong>With Otto API Key:</strong></p>
-            <pre><code>{
+        </section>
+
+        <!-- Manual Setup -->
+        <section>
+            <details>
+                <summary>Manual Configuration</summary>
+                <div>
+                    <h4>For Cursor IDE</h4>
+                    <p>Add to <code>~/.cursor/mcp.json</code>:</p>
+                    <pre><code>{
   "mcpServers": {
     "fmodata": {
       "command": "npx",
@@ -518,7 +803,7 @@
         "-y",
         "fmodata-mcp",
         "--host",
-        "https://your-filemaker-server.com",
+        "https://your-server.com",
         "--database",
         "YourDatabase",
         "--ottoApiKey",
@@ -528,378 +813,195 @@
   }
 }</code></pre>
 
-            <p><strong>With Basic Auth (Username/Password):</strong></p>
-            <pre><code>{
-  "mcpServers": {
-    "fmodata": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "fmodata-mcp",
-        "--host",
-        "https://your-filemaker-server.com",
-        "--database",
-        "YourDatabase",
-        "--username",
-        "your-username",
-        "--password",
-        "your-password"
-      ]
-    }
-  }
-}</code></pre>
+                    <h4>For Claude Desktop</h4>
+                    <p>Add to your Claude Desktop config:</p>
+                    <ul>
+                        <li><strong>macOS:</strong> <code>~/Library/Application Support/Claude/claude_desktop_config.json</code></li>
+                        <li><strong>Windows:</strong> <code>%APPDATA%\Claude\claude_desktop_config.json</code></li>
+                    </ul>
 
-            <h4>For Claude Desktop</h4>
-            <p>Add this to your Claude Desktop config file (usually <code>~/Library/Application Support/Claude/claude_desktop_config.json</code> on macOS or <code>%APPDATA%\Claude\claude_desktop_config.json</code> on Windows):</p>
-            
-            <p><strong>With Otto API Key:</strong></p>
-            <pre><code>{
-  "mcpServers": {
-    "fmodata": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "fmodata-mcp",
-        "--host",
-        "https://your-filemaker-server.com",
-        "--database",
-        "YourDatabase",
-        "--ottoApiKey",
-        "dk_your-api-key"
-      ]
-    }
-  }
-}</code></pre>
+                    <div class="notice notice-info">
+                        <strong>Using Basic Auth?</strong> Replace <code>--ottoApiKey</code> with <code>--username</code> and <code>--password</code> arguments.
+                    </div>
+                </div>
+            </details>
+        </section>
 
-            <p><strong>With Basic Auth (Username/Password):</strong></p>
-            <pre><code>{
-  "mcpServers": {
-    "fmodata": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "fmodata-mcp",
-        "--host",
-        "https://your-filemaker-server.com",
-        "--database",
-        "YourDatabase",
-        "--username",
-        "your-username",
-        "--password",
-        "your-password"
-      ]
-    }
-  }
-}</code></pre>
+        <!-- Configuration Options -->
+        <section>
+            <details>
+                <summary>Configuration Reference</summary>
+                <div>
+                    <h4>Required Arguments</h4>
+                    <ul>
+                        <li><code>--host</code> — FileMaker server URL</li>
+                        <li><code>--database</code> — Database name/filename</li>
+                    </ul>
 
-            <div class="info">
-                <strong>💡 Alternative Format:</strong> You can also use <code>--key=value</code> format:
-                <pre style="margin-top: 0.5rem;"><code>{
-  "mcpServers": {
-    "fmodata": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "fmodata-mcp",
-        "--host=https://your-filemaker-server.com",
-        "--database=YourDatabase",
-        "--ottoApiKey=dk_your-api-key"
-      ]
-    }
-  }
-}</code></pre>
-            </div>
-            
-            <div class="info">
-                <strong>🔐 Using Otto v3?</strong> If you're using Otto v3, you may need to specify the port:
-                <ul style="margin-top: 0.5rem;">
-                    <li>Add <code>"--ottoPort"</code> and <code>"3030"</code> (or your Otto port) to the args array</li>
-                    <li>Otto API keys start with <code>dk_</code> (OttoFMS) or <code>KEY_</code> (Otto v3)</li>
-                </ul>
-            </div>
-            
-            <h3><span class="step-number">3</span>Restart Your AI Assistant</h3>
-            <p>After updating the configuration, restart Claude Desktop or Cursor IDE to load the new MCP server.</p>
-            
-            <h2>🛠️ Available Tools</h2>
-            <p>Once configured, you'll have access to these FileMaker operations:</p>
-            
-            <div class="tool-list">
-                <div class="tool-item">
-                    <div class="tool-name">fmodata_list_tables</div>
-                    <div>Get all tables in the database</div>
+                    <h4>Authentication (choose one)</h4>
+                    <p><strong>Otto API Key:</strong></p>
+                    <ul>
+                        <li><code>--ottoApiKey</code> — Your Otto API key (<code>dk_</code> for OttoFMS, <code>KEY_</code> for Otto v3)</li>
+                        <li><code>--ottoPort</code> — Otto port (only for Otto v3, default 3030)</li>
+                    </ul>
+
+                    <p><strong>Basic Auth:</strong></p>
+                    <ul>
+                        <li><code>--username</code> — FileMaker username</li>
+                        <li><code>--password</code> — FileMaker password</li>
+                    </ul>
+
+                    <div class="notice notice-warning">
+                        <strong>Security:</strong> Keep your config files secure and never commit credentials to version control.
+                    </div>
                 </div>
-                
-                <div class="tool-item">
-                    <div class="tool-name">fmodata_get_metadata</div>
-                    <div>Get OData metadata ($metadata)</div>
-                </div>
-                
-                <div class="tool-item">
-                    <div class="tool-name">fmodata_query_records</div>
-                    <div>Query records with filters, sorting, and pagination</div>
-                </div>
-                
-                <div class="tool-item">
-                    <div class="tool-name">fmodata_get_record</div>
-                    <div>Get a single record by primary key</div>
-                </div>
-                
-                <div class="tool-item">
-                    <div class="tool-name">fmodata_create_record</div>
-                    <div>Create a new record</div>
-                </div>
-                
-                <div class="tool-item">
-                    <div class="tool-name">fmodata_update_record</div>
-                    <div>Update an existing record</div>
-                </div>
-                
-                <div class="tool-item">
-                    <div class="tool-name">fmodata_delete_record</div>
-                    <div>Delete a record</div>
-                </div>
-            </div>
-            
-            <h2>💡 Example Commands</h2>
-            <p>Once connected, you can ask your AI assistant things like:</p>
+            </details>
+        </section>
+
+        <!-- Resources -->
+        <section>
+            <h2><span class="icon">🔗</span> Resources</h2>
             <ul>
-                <li>"List all tables in my FileMaker database"</li>
-                <li>"Show me all records from the Contacts table"</li>
-                <li>"Create a new contact with name 'John Doe' and email 'john@example.com'"</li>
-                <li>"Find all customers where City equals 'New York'"</li>
-                <li>"Update record 42 in the Projects table with Status 'Complete'"</li>
+                <li><strong>npm:</strong> <code>fmodata-mcp</code> — run with <code>npx -y fmodata-mcp</code></li>
+                <li><strong>GitHub:</strong> <a href="https://github.com/proofgeist/odata-mcp" target="_blank">proofgeist/odata-mcp</a></li>
             </ul>
-            
-            <h2>📚 Configuration Options</h2>
-            
-            <h3>Required Arguments</h3>
-            <ul>
-                <li><code>--host</code> or <code>--server</code>: FileMaker server URL (required)</li>
-                <li><code>--database</code>, <code>--db</code>, or <code>--filename</code>: Database name/filename (required)</li>
-            </ul>
-            
-            <h3>Authentication Arguments (choose one)</h3>
-            <p><strong>Basic Auth:</strong></p>
-            <ul>
-                <li><code>--username</code> or <code>--user</code>: FileMaker username</li>
-                <li><code>--password</code> or <code>--pass</code>: FileMaker password</li>
-            </ul>
-            
-            <p><strong>Otto Auth:</strong></p>
-            <ul>
-                <li><code>--ottoApiKey</code>, <code>--apiKey</code>, or <code>--key</code>: Otto API key (<code>dk_</code> for OttoFMS, <code>KEY_</code> for Otto v3)</li>
-                <li><code>--ottoPort</code> or <code>--port</code>: Otto port (optional, only for Otto v3)</li>
-            </ul>
-            
-            <div class="warning">
-                <strong>⚠️ Security Note:</strong> Your credentials are stored in your MCP client configuration file. Keep these files secure and never commit them to version control. Use environment variables or secure credential storage when possible.
-            </div>
-            
-            <h3>Alternative: HTTP Mode</h3>
-            <p>You can also run the server as an HTTP server on <code>localhost:3000</code>:</p>
-            <pre><code>npx -y fmodata-mcp --http --host=https://your-server.com --database=YourDatabase --ottoApiKey=dk_your-key</code></pre>
-            <p>Then configure your MCP client to use the HTTP endpoint:</p>
-            <pre><code>{
-  "mcpServers": {
-    "fmodata": {
-      "url": "http://localhost:3000/mcp"
-    }
-  }
-}</code></pre>
-            
-            <h3>Alternative: Deploy to Vercel</h3>
-            <p>For cloud deployment, you can deploy this server to Vercel and use URL-based configuration with headers. See the <a href="https://github.com/proofgeist/odata-mcp" target="_blank">GitHub repository</a> for deployment instructions.</p>
-            
-            <h2>🔗 Resources</h2>
-            <ul>
-                <li><strong>npm Package:</strong> <code>fmodata-mcp</code> - Run with <code>npx -y fmodata-mcp</code></li>
-                <li><strong>GitHub:</strong> <a href="https://github.com/proofgeist/odata-mcp" target="_blank">https://github.com/proofgeist/odata-mcp</a></li>
-                <li><strong>Documentation:</strong> See the README for complete usage instructions and examples</li>
-            </ul>
-        </div>
-        
+        </section>
+
         <footer>
-            <p>Built with <a href="https://www.npmjs.com/package/fmodata" target="_blank">fmodata</a> and <a href="https://www.npmjs.com/package/mcp-handler" target="_blank">mcp-handler</a></p>
-            <p>Made with Claude and Cursor 👻</p>
+            <p>Built with <a href="https://www.npmjs.com/package/fmodata" target="_blank">fmodata</a></p>
+            <p>Made with Claude and Cursor</p>
         </footer>
     </div>
-    
+
     <script>
-        // Auth toggle functionality
         let currentAuthMethod = 'apiKey';
         let currentConfigTarget = 'cursor';
-        
+
+        // Auth toggle
         document.querySelectorAll('.auth-toggle button').forEach(button => {
             button.addEventListener('click', function() {
-                const authMethod = this.dataset.auth;
-                currentAuthMethod = authMethod;
+                currentAuthMethod = this.dataset.auth;
                 
-                // Update toggle buttons
                 document.querySelectorAll('.auth-toggle button').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 
-                // Show/hide auth fields
                 document.querySelectorAll('.auth-fields').forEach(f => f.classList.remove('active'));
-                if (authMethod === 'apiKey') {
-                    document.getElementById('apiKeyFields').classList.add('active');
-                } else {
-                    document.getElementById('basicAuthFields').classList.add('active');
-                }
+                document.getElementById(currentAuthMethod === 'apiKey' ? 'apiKeyFields' : 'basicAuthFields').classList.add('active');
             });
         });
-        
+
         function generateConfig() {
             const host = document.getElementById('serverHost').value.trim();
             const database = document.getElementById('database').value.trim();
-            
+
             if (!host || !database) {
-                alert('Please enter both Server Host and Database Name');
+                alert('Please enter Server Host and Database Name');
                 return null;
             }
-            
+
             const args = ['-y', 'fmodata-mcp', '--host', host, '--database', database];
-            
+
             if (currentAuthMethod === 'apiKey') {
                 const apiKey = document.getElementById('apiKey').value.trim();
                 const ottoPort = document.getElementById('ottoPort').value.trim();
-                
-                if (apiKey) {
-                    args.push('--ottoApiKey', apiKey);
-                }
-                if (ottoPort) {
-                    args.push('--ottoPort', ottoPort);
-                }
+                if (apiKey) args.push('--ottoApiKey', apiKey);
+                if (ottoPort) args.push('--ottoPort', ottoPort);
             } else {
                 const username = document.getElementById('username').value.trim();
                 const password = document.getElementById('password').value.trim();
-                
-                if (username) {
-                    args.push('--username', username);
-                }
-                if (password) {
-                    args.push('--password', password);
-                }
+                if (username) args.push('--username', username);
+                if (password) args.push('--password', password);
             }
-            
-            return {
-                mcpServers: {
-                    fmodata: {
-                        command: 'npx',
-                        args: args
-                    }
-                }
-            };
+
+            return { mcpServers: { fmodata: { command: 'npx', args } } };
         }
-        
+
         function showConfig(target) {
             const config = generateConfig();
             if (!config) return null;
-            
+
             currentConfigTarget = target;
-            
-            // Update tabs
+
             document.querySelectorAll('.config-tab').forEach(tab => {
                 tab.classList.toggle('active', tab.dataset.target === target);
             });
-            
-            // Show config
-            const configJson = JSON.stringify(config, null, 2);
-            document.getElementById('configCode').textContent = configJson;
+
+            document.getElementById('configCode').textContent = JSON.stringify(config, null, 2);
             document.getElementById('configOutput').classList.add('visible');
-            document.getElementById('successMessage').classList.add('visible');
-            
-            // Show path info
-            const pathInfo = target === 'cursor' 
-                ? '📁 File: ~/.cursor/mcp.json'
-                : '📁 File: ~/Library/Application Support/Claude/claude_desktop_config.json (macOS) or %APPDATA%\\Claude\\claude_desktop_config.json (Windows)';
-            document.getElementById('configPath').textContent = pathInfo;
-            
+            document.getElementById('successBanner').classList.add('visible');
+
+            const paths = {
+                cursor: '~/.cursor/mcp.json',
+                claude: '~/Library/Application Support/Claude/claude_desktop_config.json'
+            };
+            document.getElementById('configPath').textContent = paths[target];
+
             return config;
         }
-        
+
         function switchConfigTab(target) {
             currentConfigTarget = target;
-            
-            // Update tabs
             document.querySelectorAll('.config-tab').forEach(tab => {
                 tab.classList.toggle('active', tab.dataset.target === target);
             });
-            
-            // Update path info
-            const pathInfo = target === 'cursor' 
-                ? '📁 File: ~/.cursor/mcp.json'
-                : '📁 File: ~/Library/Application Support/Claude/claude_desktop_config.json (macOS) or %APPDATA%\\Claude\\claude_desktop_config.json (Windows)';
-            document.getElementById('configPath').textContent = pathInfo;
+            const paths = {
+                cursor: '~/.cursor/mcp.json',
+                claude: '~/Library/Application Support/Claude/claude_desktop_config.json'
+            };
+            document.getElementById('configPath').textContent = paths[target];
         }
-        
+
         function addToCursor() {
             const config = showConfig('cursor');
             if (!config) return;
-            
-            // Try cursor:// deeplink (may or may not work depending on Cursor version)
-            const configJson = JSON.stringify(config);
-            const encodedConfig = btoa(configJson);
-            
-            // Attempt to open Cursor with the config
-            // This uses cursor:// protocol which may be supported
+
             try {
-                const cursorUrl = `cursor://anysphere.cursor-deeplink/mcp/install?config=${encodeURIComponent(encodedConfig)}`;
-                window.open(cursorUrl, '_blank');
+                const encoded = btoa(JSON.stringify(config));
+                window.open(`cursor://anysphere.cursor-deeplink/mcp/install?config=${encodeURIComponent(encoded)}`, '_blank');
             } catch (e) {
-                // Deeplink failed, config is already displayed for manual copy
-                console.log('Deeplink not supported, showing config for manual copy');
+                console.log('Deeplink not supported');
             }
-            
-            // Scroll to config output
+
             document.getElementById('configOutput').scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-        
+
         function addToClaude() {
             const config = showConfig('claude');
             if (!config) return;
-            
-            // Try claude:// deeplink (may or may not work)
-            const configJson = JSON.stringify(config);
-            const encodedConfig = btoa(configJson);
-            
+
             try {
-                const claudeUrl = `claude://mcp/install?config=${encodeURIComponent(encodedConfig)}`;
-                window.open(claudeUrl, '_blank');
+                const encoded = btoa(JSON.stringify(config));
+                window.open(`claude://mcp/install?config=${encodeURIComponent(encoded)}`, '_blank');
             } catch (e) {
-                console.log('Deeplink not supported, showing config for manual copy');
+                console.log('Deeplink not supported');
             }
-            
-            // Scroll to config output
+
             document.getElementById('configOutput').scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-        
+
         function copyConfig() {
-            const configCode = document.getElementById('configCode').textContent;
-            navigator.clipboard.writeText(configCode).then(() => {
+            const code = document.getElementById('configCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
                 const btn = document.querySelector('.btn-copy');
-                btn.textContent = '✅ Copied!';
+                btn.textContent = 'Copied!';
                 btn.classList.add('copied');
-                
                 setTimeout(() => {
-                    btn.textContent = '📋 Copy Configuration';
+                    btn.textContent = 'Copy';
                     btn.classList.remove('copied');
                 }, 2000);
-            }).catch(err => {
-                // Fallback for older browsers
+            }).catch(() => {
                 const textarea = document.createElement('textarea');
-                textarea.value = configCode;
+                textarea.value = code;
                 document.body.appendChild(textarea);
                 textarea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textarea);
-                
+
                 const btn = document.querySelector('.btn-copy');
-                btn.textContent = '✅ Copied!';
+                btn.textContent = 'Copied!';
                 btn.classList.add('copied');
-                
                 setTimeout(() => {
-                    btn.textContent = '📋 Copy Configuration';
+                    btn.textContent = 'Copy';
                     btn.classList.remove('copied');
                 }, 2000);
             });
