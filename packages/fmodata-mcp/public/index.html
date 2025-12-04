@@ -166,6 +166,237 @@
             font-weight: bold;
             margin-right: 0.5rem;
         }
+        
+        /* Config Generator Styles */
+        .config-generator {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 1px solid #dee2e6;
+        }
+        
+        .config-generator h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+        
+        .form-group input::placeholder {
+            color: #adb5bd;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .auth-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .auth-toggle button {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid #dee2e6;
+            background: white;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .auth-toggle button:hover {
+            border-color: #667eea;
+        }
+        
+        .auth-toggle button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .auth-fields {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .auth-fields.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        
+        .btn-cursor {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+        }
+        
+        .btn-cursor:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26, 26, 46, 0.4);
+        }
+        
+        .btn-claude {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            color: white;
+        }
+        
+        .btn-claude:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4);
+        }
+        
+        .btn-copy {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-copy:hover {
+            background: #5a6268;
+        }
+        
+        .btn-copy.copied {
+            background: #28a745;
+        }
+        
+        .config-output {
+            margin-top: 1.5rem;
+            display: none;
+        }
+        
+        .config-output.visible {
+            display: block;
+        }
+        
+        .config-output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .config-output-header h4 {
+            margin: 0;
+            color: #495057;
+        }
+        
+        .config-output pre {
+            margin: 0;
+            position: relative;
+        }
+        
+        .config-tabs {
+            display: flex;
+            gap: 0.25rem;
+            margin-bottom: -1px;
+        }
+        
+        .config-tab {
+            padding: 0.5rem 1rem;
+            background: #dee2e6;
+            border: none;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .config-tab.active {
+            background: #2d2d2d;
+            color: #f8f8f2;
+        }
+        
+        .config-tab:hover:not(.active) {
+            background: #ced4da;
+        }
+        
+        .config-path {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .success-message.visible {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .icon-cursor {
+            width: 20px;
+            height: 20px;
+        }
     </style>
 </head>
 <body>
@@ -179,8 +410,90 @@
             <h2>🚀 Quick Setup</h2>
             <p>This MCP server allows AI assistants like Claude Desktop and Cursor to interact with FileMaker databases through the OData API.</p>
             
+            <!-- Configuration Generator -->
+            <div class="config-generator">
+                <h3>⚡ Quick Install</h3>
+                <p>Enter your FileMaker server details below, then click to add to your AI assistant.</p>
+                
+                <form id="configForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="serverHost">Server Host</label>
+                            <input type="url" id="serverHost" placeholder="https://your-filemaker-server.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="database">Database Name</label>
+                            <input type="text" id="database" placeholder="YourDatabase" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Authentication Method</label>
+                        <div class="auth-toggle">
+                            <button type="button" class="active" data-auth="apiKey">Otto API Key</button>
+                            <button type="button" data-auth="basic">Username / Password</button>
+                        </div>
+                    </div>
+                    
+                    <div id="apiKeyFields" class="auth-fields active">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="apiKey">Otto API Key</label>
+                                <input type="text" id="apiKey" placeholder="dk_your-api-key or KEY_your-api-key">
+                            </div>
+                            <div class="form-group">
+                                <label for="ottoPort">Otto Port <span style="font-weight: normal; color: #6c757d;">(optional, Otto v3 only)</span></label>
+                                <input type="text" id="ottoPort" placeholder="3030">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="basicAuthFields" class="auth-fields">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input type="text" id="username" placeholder="your-username">
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" id="password" placeholder="your-password">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button type="button" class="btn btn-cursor" onclick="addToCursor()">
+                            <svg class="icon-cursor" viewBox="0 0 24 24" fill="currentColor"><path d="M5.5 3l13 10-13 10V3z"/></svg>
+                            Add to Cursor
+                        </button>
+                        <button type="button" class="btn btn-claude" onclick="addToClaude()">
+                            <svg class="icon-cursor" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+                            Add to Claude Desktop
+                        </button>
+                    </div>
+                </form>
+                
+                <div id="successMessage" class="success-message">
+                    <strong>✅ Configuration generated!</strong> If the app didn't open automatically, copy the configuration below and add it to your config file.
+                </div>
+                
+                <div id="configOutput" class="config-output">
+                    <div class="config-tabs">
+                        <button class="config-tab active" data-target="cursor" onclick="switchConfigTab('cursor')">Cursor</button>
+                        <button class="config-tab" data-target="claude" onclick="switchConfigTab('claude')">Claude Desktop</button>
+                    </div>
+                    <div class="config-output-header">
+                        <button class="btn btn-copy" onclick="copyConfig()">📋 Copy Configuration</button>
+                    </div>
+                    <pre><code id="configCode"></code></pre>
+                    <p id="configPath" class="config-path"></p>
+                </div>
+            </div>
+            
+            <h2>📖 Manual Setup</h2>
+            
             <div class="info">
-                <strong>📝 Note:</strong> This server requires configuration via headers. You need to provide your FileMaker server details, database name, and credentials in the MCP client configuration.
+                <strong>📝 Note:</strong> This server uses <code>npx</code> to run without installation. You'll configure it by providing your FileMaker server details, database name, and credentials as command-line arguments in your MCP client configuration.
             </div>
             
             <h3><span class="step-number">1</span>Gather Your FileMaker Details</h3>
@@ -195,41 +508,113 @@
             
             <h4>For Cursor IDE</h4>
             <p>Add this to your <code>~/.cursor/mcp.json</code> file:</p>
+            
+            <p><strong>With Otto API Key:</strong></p>
             <pre><code>{
   "mcpServers": {
     "fmodata": {
-      "url": "https://YOUR-DEPLOYMENT.vercel.app/api/mcp",
-      "headers": {
-        "x-fmodata-host": "https://your-filemaker-server.com",
-        "x-fmodata-database": "YourDatabase",
-        "x-fmodata-username": "your-username",
-        "x-fmodata-password": "your-password"
-      }
+      "command": "npx",
+      "args": [
+        "-y",
+        "fmodata-mcp",
+        "--host",
+        "https://your-filemaker-server.com",
+        "--database",
+        "YourDatabase",
+        "--ottoApiKey",
+        "dk_your-api-key"
+      ]
+    }
+  }
+}</code></pre>
+
+            <p><strong>With Basic Auth (Username/Password):</strong></p>
+            <pre><code>{
+  "mcpServers": {
+    "fmodata": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "fmodata-mcp",
+        "--host",
+        "https://your-filemaker-server.com",
+        "--database",
+        "YourDatabase",
+        "--username",
+        "your-username",
+        "--password",
+        "your-password"
+      ]
     }
   }
 }</code></pre>
 
             <h4>For Claude Desktop</h4>
-            <p>Add this to your Claude Desktop config file:</p>
+            <p>Add this to your Claude Desktop config file (usually <code>~/Library/Application Support/Claude/claude_desktop_config.json</code> on macOS or <code>%APPDATA%\Claude\claude_desktop_config.json</code> on Windows):</p>
+            
+            <p><strong>With Otto API Key:</strong></p>
             <pre><code>{
   "mcpServers": {
     "fmodata": {
-      "url": "https://YOUR-DEPLOYMENT.vercel.app/api/mcp",
-      "headers": {
-        "x-fmodata-host": "https://your-filemaker-server.com",
-        "x-fmodata-database": "YourDatabase",
-        "x-fmodata-username": "your-username",
-        "x-fmodata-password": "your-password"
-      }
+      "command": "npx",
+      "args": [
+        "-y",
+        "fmodata-mcp",
+        "--host",
+        "https://your-filemaker-server.com",
+        "--database",
+        "YourDatabase",
+        "--ottoApiKey",
+        "dk_your-api-key"
+      ]
+    }
+  }
+}</code></pre>
+
+            <p><strong>With Basic Auth (Username/Password):</strong></p>
+            <pre><code>{
+  "mcpServers": {
+    "fmodata": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "fmodata-mcp",
+        "--host",
+        "https://your-filemaker-server.com",
+        "--database",
+        "YourDatabase",
+        "--username",
+        "your-username",
+        "--password",
+        "your-password"
+      ]
     }
   }
 }</code></pre>
 
             <div class="info">
-                <strong>🔐 Using Otto?</strong> If you're using Otto (OttoFMS or Otto3), use these headers instead:
+                <strong>💡 Alternative Format:</strong> You can also use <code>--key=value</code> format:
+                <pre style="margin-top: 0.5rem;"><code>{
+  "mcpServers": {
+    "fmodata": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "fmodata-mcp",
+        "--host=https://your-filemaker-server.com",
+        "--database=YourDatabase",
+        "--ottoApiKey=dk_your-api-key"
+      ]
+    }
+  }
+}</code></pre>
+            </div>
+            
+            <div class="info">
+                <strong>🔐 Using Otto v3?</strong> If you're using Otto v3, you may need to specify the port:
                 <ul style="margin-top: 0.5rem;">
-                    <li><code>x-fmodata-otto-api-key</code>: Your Otto API key (starts with <code>KEY_</code> or <code>dk_</code>)</li>
-                    <li><code>x-fmodata-otto-port</code>: Otto port (only for Otto3, usually 3030)</li>
+                    <li>Add <code>"--ottoPort"</code> and <code>"3030"</code> (or your Otto port) to the args array</li>
+                    <li>Otto API keys start with <code>dk_</code> (OttoFMS) or <code>KEY_</code> (Otto v3)</li>
                 </ul>
             </div>
             
@@ -288,35 +673,49 @@
             
             <h2>📚 Configuration Options</h2>
             
-            <h3>Required Headers</h3>
+            <h3>Required Arguments</h3>
             <ul>
-                <li><code>x-fmodata-host</code>: FileMaker server URL</li>
-                <li><code>x-fmodata-database</code>: Database name/filename</li>
+                <li><code>--host</code> or <code>--server</code>: FileMaker server URL (required)</li>
+                <li><code>--database</code>, <code>--db</code>, or <code>--filename</code>: Database name/filename (required)</li>
             </ul>
             
-            <h3>Authentication Headers (choose one)</h3>
+            <h3>Authentication Arguments (choose one)</h3>
             <p><strong>Basic Auth:</strong></p>
             <ul>
-                <li><code>x-fmodata-username</code>: FileMaker username</li>
-                <li><code>x-fmodata-password</code>: FileMaker password</li>
+                <li><code>--username</code> or <code>--user</code>: FileMaker username</li>
+                <li><code>--password</code> or <code>--pass</code>: FileMaker password</li>
             </ul>
             
             <p><strong>Otto Auth:</strong></p>
             <ul>
-                <li><code>x-fmodata-otto-api-key</code>: Otto API key</li>
-                <li><code>x-fmodata-otto-port</code>: Otto port (Otto3 only, optional)</li>
+                <li><code>--ottoApiKey</code>, <code>--apiKey</code>, or <code>--key</code>: Otto API key (<code>dk_</code> for OttoFMS, <code>KEY_</code> for Otto v3)</li>
+                <li><code>--ottoPort</code> or <code>--port</code>: Otto port (optional, only for Otto v3)</li>
             </ul>
             
             <div class="warning">
-                <strong>⚠️ Security Note:</strong> Your credentials are sent as headers with each request. Make sure to use HTTPS and keep your configuration files secure. Never commit credentials to version control.
+                <strong>⚠️ Security Note:</strong> Your credentials are stored in your MCP client configuration file. Keep these files secure and never commit them to version control. Use environment variables or secure credential storage when possible.
             </div>
+            
+            <h3>Alternative: HTTP Mode</h3>
+            <p>You can also run the server as an HTTP server on <code>localhost:3000</code>:</p>
+            <pre><code>npx -y fmodata-mcp --http --host=https://your-server.com --database=YourDatabase --ottoApiKey=dk_your-key</code></pre>
+            <p>Then configure your MCP client to use the HTTP endpoint:</p>
+            <pre><code>{
+  "mcpServers": {
+    "fmodata": {
+      "url": "http://localhost:3000/mcp"
+    }
+  }
+}</code></pre>
+            
+            <h3>Alternative: Deploy to Vercel</h3>
+            <p>For cloud deployment, you can deploy this server to Vercel and use URL-based configuration with headers. See the <a href="https://github.com/proofgeist/odata-mcp" target="_blank">GitHub repository</a> for deployment instructions.</p>
             
             <h2>🔗 Resources</h2>
             <ul>
-                <li><strong>Health Check:</strong> <code>/api/health</code></li>
-                <li><strong>MCP Endpoint:</strong> <code>/api/mcp</code></li>
+                <li><strong>npm Package:</strong> <code>fmodata-mcp</code> - Run with <code>npx -y fmodata-mcp</code></li>
                 <li><strong>GitHub:</strong> <a href="https://github.com/proofgeist/odata-mcp" target="_blank">https://github.com/proofgeist/odata-mcp</a></li>
-                <li><strong>npm Package:</strong> <code>fmodata-mcp</code></li>
+                <li><strong>Documentation:</strong> See the README for complete usage instructions and examples</li>
             </ul>
         </div>
         
@@ -325,5 +724,186 @@
             <p>Made with Claude and Cursor 👻</p>
         </footer>
     </div>
+    
+    <script>
+        // Auth toggle functionality
+        let currentAuthMethod = 'apiKey';
+        let currentConfigTarget = 'cursor';
+        
+        document.querySelectorAll('.auth-toggle button').forEach(button => {
+            button.addEventListener('click', function() {
+                const authMethod = this.dataset.auth;
+                currentAuthMethod = authMethod;
+                
+                // Update toggle buttons
+                document.querySelectorAll('.auth-toggle button').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show/hide auth fields
+                document.querySelectorAll('.auth-fields').forEach(f => f.classList.remove('active'));
+                if (authMethod === 'apiKey') {
+                    document.getElementById('apiKeyFields').classList.add('active');
+                } else {
+                    document.getElementById('basicAuthFields').classList.add('active');
+                }
+            });
+        });
+        
+        function generateConfig() {
+            const host = document.getElementById('serverHost').value.trim();
+            const database = document.getElementById('database').value.trim();
+            
+            if (!host || !database) {
+                alert('Please enter both Server Host and Database Name');
+                return null;
+            }
+            
+            const args = ['-y', 'fmodata-mcp', '--host', host, '--database', database];
+            
+            if (currentAuthMethod === 'apiKey') {
+                const apiKey = document.getElementById('apiKey').value.trim();
+                const ottoPort = document.getElementById('ottoPort').value.trim();
+                
+                if (apiKey) {
+                    args.push('--ottoApiKey', apiKey);
+                }
+                if (ottoPort) {
+                    args.push('--ottoPort', ottoPort);
+                }
+            } else {
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+                
+                if (username) {
+                    args.push('--username', username);
+                }
+                if (password) {
+                    args.push('--password', password);
+                }
+            }
+            
+            return {
+                mcpServers: {
+                    fmodata: {
+                        command: 'npx',
+                        args: args
+                    }
+                }
+            };
+        }
+        
+        function showConfig(target) {
+            const config = generateConfig();
+            if (!config) return null;
+            
+            currentConfigTarget = target;
+            
+            // Update tabs
+            document.querySelectorAll('.config-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.target === target);
+            });
+            
+            // Show config
+            const configJson = JSON.stringify(config, null, 2);
+            document.getElementById('configCode').textContent = configJson;
+            document.getElementById('configOutput').classList.add('visible');
+            document.getElementById('successMessage').classList.add('visible');
+            
+            // Show path info
+            const pathInfo = target === 'cursor' 
+                ? '📁 File: ~/.cursor/mcp.json'
+                : '📁 File: ~/Library/Application Support/Claude/claude_desktop_config.json (macOS) or %APPDATA%\\Claude\\claude_desktop_config.json (Windows)';
+            document.getElementById('configPath').textContent = pathInfo;
+            
+            return config;
+        }
+        
+        function switchConfigTab(target) {
+            currentConfigTarget = target;
+            
+            // Update tabs
+            document.querySelectorAll('.config-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.target === target);
+            });
+            
+            // Update path info
+            const pathInfo = target === 'cursor' 
+                ? '📁 File: ~/.cursor/mcp.json'
+                : '📁 File: ~/Library/Application Support/Claude/claude_desktop_config.json (macOS) or %APPDATA%\\Claude\\claude_desktop_config.json (Windows)';
+            document.getElementById('configPath').textContent = pathInfo;
+        }
+        
+        function addToCursor() {
+            const config = showConfig('cursor');
+            if (!config) return;
+            
+            // Try cursor:// deeplink (may or may not work depending on Cursor version)
+            const configJson = JSON.stringify(config);
+            const encodedConfig = btoa(configJson);
+            
+            // Attempt to open Cursor with the config
+            // This uses cursor:// protocol which may be supported
+            try {
+                const cursorUrl = `cursor://anysphere.cursor-deeplink/mcp/install?config=${encodeURIComponent(encodedConfig)}`;
+                window.open(cursorUrl, '_blank');
+            } catch (e) {
+                // Deeplink failed, config is already displayed for manual copy
+                console.log('Deeplink not supported, showing config for manual copy');
+            }
+            
+            // Scroll to config output
+            document.getElementById('configOutput').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        function addToClaude() {
+            const config = showConfig('claude');
+            if (!config) return;
+            
+            // Try claude:// deeplink (may or may not work)
+            const configJson = JSON.stringify(config);
+            const encodedConfig = btoa(configJson);
+            
+            try {
+                const claudeUrl = `claude://mcp/install?config=${encodeURIComponent(encodedConfig)}`;
+                window.open(claudeUrl, '_blank');
+            } catch (e) {
+                console.log('Deeplink not supported, showing config for manual copy');
+            }
+            
+            // Scroll to config output
+            document.getElementById('configOutput').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        function copyConfig() {
+            const configCode = document.getElementById('configCode').textContent;
+            navigator.clipboard.writeText(configCode).then(() => {
+                const btn = document.querySelector('.btn-copy');
+                btn.textContent = '✅ Copied!';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.textContent = '📋 Copy Configuration';
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = configCode;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                const btn = document.querySelector('.btn-copy');
+                btn.textContent = '✅ Copied!';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.textContent = '📋 Copy Configuration';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
 </body>
 </html>
