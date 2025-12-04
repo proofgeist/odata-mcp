@@ -955,9 +955,11 @@
             const config = showConfig('cursor');
             if (!config) return;
 
+            // Try Cursor deeplink with name parameter
             try {
-                const encoded = btoa(JSON.stringify(config));
-                window.open(`cursor://anysphere.cursor-deeplink/mcp/install?config=${encodeURIComponent(encoded)}`, '_blank');
+                const serverConfig = config.mcpServers.fmodata;
+                const encoded = btoa(JSON.stringify(serverConfig));
+                window.open(`cursor://anysphere.cursor-deeplink/mcp/install?name=fmodata&config=${encodeURIComponent(encoded)}`, '_blank');
             } catch (e) {
                 console.log('Deeplink not supported');
             }
@@ -969,13 +971,7 @@
             const config = showConfig('claude');
             if (!config) return;
 
-            try {
-                const encoded = btoa(JSON.stringify(config));
-                window.open(`claude://mcp/install?config=${encodeURIComponent(encoded)}`, '_blank');
-            } catch (e) {
-                console.log('Deeplink not supported');
-            }
-
+            // Claude Desktop doesn't have a known deeplink, just show the config
             document.getElementById('configOutput').scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
