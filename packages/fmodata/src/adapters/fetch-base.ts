@@ -250,7 +250,8 @@ export abstract class BaseFetchAdapter implements Adapter {
     options?: BaseRequestOptions,
   ): Promise<ODataResponse<ODataTable>> {
     const path = buildTablesPath(this.database);
-    const query = new URLSearchParams({ $format: "json" });
+    // Use string query to avoid URLSearchParams encoding $ to %24
+    const query = "$format=json";
 
     return this.request<ODataResponse<ODataTable>>({
       path,
