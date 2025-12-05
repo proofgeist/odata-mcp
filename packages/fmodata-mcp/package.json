@@ -32,16 +32,16 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.20.2",
     "@vercel/node": "^3.0.0",
-    "mcp-handler": "^1.0.3",
-    "fmodata": "^0.1.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "fmodata": "^0.1.0",
+    "mcp-handler": "^1.0.3",
     "zod": "^3.25.64"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/json-schema": "^7.0.15",
-    "@types/node": "^22.17.1",
+    "@types/node": "^22.19.0",
     "@typescript-eslint/eslint-plugin": "^8.29.0",
     "@typescript-eslint/parser": "^8.29.0",
     "eslint": "^9.23.0",

@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { createMcpHandler } from "mcp-handler";
 import { ODataApi, FetchAdapter, OttoAdapter, isOttoAPIKey } from "fmodata";
 import { z } from "zod";
