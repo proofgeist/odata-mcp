@@ -45,7 +45,7 @@
         html {
             scroll-behavior: smooth;
         }
-
+        
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-primary);
@@ -68,13 +68,13 @@
             pointer-events: none;
             z-index: -1;
         }
-
+        
         .container {
             max-width: 800px;
             margin: 0 auto;
             padding: 3rem 1.5rem 4rem;
         }
-
+        
         /* Header */
         header {
             text-align: center;
@@ -226,7 +226,7 @@
             gap: 0.25rem;
             margin-bottom: 1rem;
         }
-
+        
         .auth-toggle button {
             flex: 1;
             padding: 0.5rem 1rem;
@@ -402,7 +402,7 @@
             border-color: var(--success);
             color: var(--success);
         }
-
+        
         pre {
             margin: 0;
             padding: 1rem;
@@ -412,7 +412,7 @@
             line-height: 1.7;
             color: var(--text-secondary);
         }
-
+        
         pre code {
             background: none;
             padding: 0;
@@ -481,7 +481,7 @@
             display: grid;
             gap: 0.5rem;
         }
-
+        
         .tool-item {
             display: flex;
             align-items: flex-start;
@@ -495,7 +495,7 @@
         .tool-item:hover {
             background: var(--bg-elevated);
         }
-
+        
         .tool-name {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.8125rem;
@@ -634,7 +634,7 @@
             <h1>FileMaker OData MCP</h1>
             <p class="tagline">Connect AI assistants to FileMaker databases</p>
         </header>
-
+        
         <!-- Quick Install Section -->
         <section>
             <div class="card card-highlight">
@@ -645,7 +645,7 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="serverHost">Server Host</label>
-                            <input type="url" id="serverHost" placeholder="https://your-server.com" required>
+                            <input type="text" id="serverHost" placeholder="your-server.com" required>
                         </div>
                         <div class="form-group">
                             <label for="database">Database Name</label>
@@ -659,8 +659,8 @@
                             <button type="button" class="active" data-auth="apiKey">Otto API Key</button>
                             <button type="button" data-auth="basic">Username & Password</button>
                         </div>
-                    </div>
-
+            </div>
+            
                     <div id="apiKeyFields" class="auth-fields active">
                         <div class="form-group">
                             <label for="apiKey">API Key</label>
@@ -763,8 +763,8 @@
                     <span class="tool-name">fmodata_cross_join</span>
                     <span class="tool-desc">Perform cross-join query between tables</span>
                 </div>
-            </div>
-
+                </div>
+                
             <h4>Data Modification</h4>
             <div class="tools-grid">
                 <div class="tool-item">
@@ -779,8 +779,8 @@
                     <span class="tool-name">fmodata_delete_record</span>
                     <span class="tool-desc">Delete a record</span>
                 </div>
-            </div>
-
+                </div>
+                
             <h4>Schema Operations</h4>
             <div class="tools-grid">
                 <div class="tool-item">
@@ -800,7 +800,7 @@
                     <span class="tool-desc">Delete a field from a table</span>
                 </div>
             </div>
-
+            
             <h4>Scripts & Batch</h4>
             <div class="tools-grid">
                 <div class="tool-item">
@@ -844,8 +844,8 @@
                     <ul>
                         <li><strong>macOS:</strong> <code>~/Library/Application Support/Claude/claude_desktop_config.json</code></li>
                         <li><strong>Windows:</strong> <code>%APPDATA%\Claude\claude_desktop_config.json</code></li>
-                    </ul>
-
+            </ul>
+            
                     <div class="notice notice-info">
                         <strong>Using Basic Auth?</strong> Replace <code>--ottoApiKey</code> with <code>--username</code> and <code>--password</code> arguments.
                     </div>
@@ -862,24 +862,24 @@
                     <ul>
                         <li><code>--host</code> — FileMaker server URL</li>
                         <li><code>--database</code> — Database name/filename</li>
-                    </ul>
-
+            </ul>
+            
                     <h4>Authentication (choose one)</h4>
                     <p><strong>Otto API Key:</strong></p>
-                    <ul>
+            <ul>
                         <li><code>--ottoApiKey</code> — Your Otto API key (<code>dk_</code> for OttoFMS, <code>KEY_</code> for Otto v3)</li>
-                    </ul>
-
+            </ul>
+            
                     <p><strong>Basic Auth:</strong></p>
-                    <ul>
+            <ul>
                         <li><code>--username</code> — FileMaker username</li>
                         <li><code>--password</code> — FileMaker password</li>
-                    </ul>
-
+            </ul>
+            
                     <div class="notice notice-warning">
                         <strong>Security:</strong> Keep your config files secure and never commit credentials to version control.
                     </div>
-                </div>
+            </div>
             </details>
         </section>
 
@@ -891,7 +891,7 @@
                 <li><strong>GitHub:</strong> <a href="https://github.com/proofgeist/odata-mcp" target="_blank">proofgeist/odata-mcp</a></li>
             </ul>
         </section>
-
+        
         <footer>
             <p>Built with <a href="https://www.npmjs.com/package/fmodata" target="_blank">fmodata</a></p>
         </footer>
@@ -915,12 +915,17 @@
         });
 
         function generateConfig() {
-            const host = document.getElementById('serverHost').value.trim();
+            let host = document.getElementById('serverHost').value.trim();
             const database = document.getElementById('database').value.trim();
 
             if (!host || !database) {
                 alert('Please enter Server Host and Database Name');
                 return null;
+            }
+
+            // Add https:// if no protocol specified
+            if (host && !host.match(/^https?:\/\//i)) {
+                host = 'https://' + host;
             }
 
             const args = ['-y', 'fmodata-mcp', '--host', host, '--database', database];
