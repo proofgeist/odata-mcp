@@ -82,8 +82,8 @@ importers:
         specifier: ^4.21.2
         version: 4.21.2
       fmodata:
-        specifier: workspace:^
-        version: link:../fmodata
+        specifier: ^0.1.1
+        version: 0.1.1(@types/node@22.19.0)(jiti@2.6.1)(typescript@5.9.3)
       mcp-handler:
         specifier: ^1.0.3
         version: 1.0.3(@modelcontextprotocol/sdk@1.21.0)
@@ -2084,6 +2084,10 @@ packages:
 
   flatted@3.3.3:
     resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
+
+  fmodata@0.1.1:
+    resolution: {integrity: sha512-lfrhQszi3AHm5CxjpAC0zqb3T69asYFffnHdGcxetQ0g3ykEzy196z4aVAbFlSbfoGUHsGjZO5RgPQZOn68fXQ==}
+    engines: {node: '>=18.0.0'}
 
   for-each@0.3.5:
     resolution: {integrity: sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==}
@@ -5794,6 +5798,27 @@ snapshots:
       keyv: 4.5.4
 
   flatted@3.3.3: {}
+
+  fmodata@0.1.1(@types/node@22.19.0)(jiti@2.6.1)(typescript@5.9.3):
+    dependencies:
+      '@tanstack/vite-config': 0.2.1(@types/node@22.19.0)(rollup@4.52.5)(typescript@5.9.3)(vite@6.4.1(@types/node@22.19.0)(jiti@2.6.1))
+      vite: 6.4.1(@types/node@22.19.0)(jiti@2.6.1)
+      zod: 3.25.64
+    transitivePeerDependencies:
+      - '@types/node'
+      - jiti
+      - less
+      - lightningcss
+      - rollup
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - tsx
+      - typescript
+      - yaml
 
   for-each@0.3.5:
     dependencies:
