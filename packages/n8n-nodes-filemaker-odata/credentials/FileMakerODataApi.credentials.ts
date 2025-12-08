@@ -1,5 +1,4 @@
 import type {
-	IAuthenticateGeneric,
 	Icon,
 	ICredentialTestRequest,
 	ICredentialType,
@@ -89,21 +88,19 @@ export class FileMakerODataApi implements ICredentialType {
 		},
 	];
 
-	authenticate: IAuthenticateGeneric = {
-		type: 'generic',
-		properties: {
-			headers: {
-				Authorization:
-					'={{$credentials.authType === "otto" ? "KEY " + $credentials.ottoApiKey : "Basic " + $credentials.username.concat(":").concat($credentials.password).toBase64()}}',
-			},
-		},
-	};
+	// Note: We can't use authenticate with dynamic paths, so we handle auth in the node's execute function
+	// The test request below handles auth manually via the testedBy function
 
 	test: ICredentialTestRequest = {
 		request: {
-			baseURL: '={{$credentials.host}}',
-			url: '=/fmi/odata/v4/{{$credentials.database}}',
+			baseURL:
+				'={{$credentials.host.replace(/\\/$/, "")}}',
+			url: '={{$credentials.authType === "otto" ? "/otto/fmi/odata/v4/" + encodeURIComponent($credentials.database) : "/fmi/odata/v4/" + encodeURIComponent($credentials.database)}}',
 			method: 'GET',
+			headers: {
+				Authorization:
+					'={{$credentials.authType === "otto" ? "Bearer " + $credentials.ottoApiKey : "Basic " + Buffer.from($credentials.username + ":" + $credentials.password).toString("base64")}}',
+			},
 		},
 	};
 }
