@@ -6,12 +6,12 @@
 	"resources": {
 		"credentialDocumentation": [
 			{
-				"url": "https://github.com/proofgeist/fmodata#credentials"
+				"url": "https://github.com/proofgeist/odata-mcp#credentials"
 			}
 		],
 		"primaryDocumentation": [
 			{
-				"url": "https://github.com/proofgeist/fmodata/tree/main/packages/n8n-nodes-filemaker-odata"
+				"url": "https://github.com/proofgeist/odata-mcp/tree/main/packages/n8n-nodes-filemaker-odata"
 			}
 		]
 	}

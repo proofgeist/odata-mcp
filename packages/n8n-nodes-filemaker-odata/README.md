@@ -136,7 +136,7 @@ The node uses OData v4 filter syntax. Examples:
 
 - [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
 - [FileMaker OData API documentation](https://help.claris.com/en/odata-guide/)
-- [fmodata library](https://github.com/proofgeist/fmodata)
+- [fmodata library](https://github.com/proofgeist/odata-mcp)
 - [OttoFMS](https://www.ottofms.com/)
 
 ## License

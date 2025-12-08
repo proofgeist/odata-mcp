@@ -12,7 +12,7 @@ export class FileMakerODataApi implements ICredentialType {
 
 	icon: Icon = 'file:../icons/filemaker.svg';
 
-	documentationUrl = 'https://github.com/proofgeist/fmodata';
+	documentationUrl = 'https://github.com/proofgeist/odata-mcp';
 
 	properties: INodeProperties[] = [
 		{
