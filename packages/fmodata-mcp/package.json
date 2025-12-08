@@ -24,7 +24,8 @@
     "dev": "tsc --watch",
     "ci": "pnpm build && pnpm check-format && pnpm publint --strict",
     "knip": "knip",
-    "prepublishOnly": "pnpm build",
+    "check-workspace": "node -e \"const pkg = require('./package.json'); const deps = JSON.stringify(pkg.dependencies || {}); if (deps.includes('workspace:')) { console.error('ERROR: workspace: protocol found in dependencies. Use semver instead.'); process.exit(1); }\"",
+    "prepublishOnly": "pnpm check-workspace && pnpm build",
     "pub:beta": "pnpm build && npm publish --tag beta --access public",
     "pub:next": "pnpm build && npm publish --tag next --access public",
     "pub:release": "pnpm build && npm publish --access public"
