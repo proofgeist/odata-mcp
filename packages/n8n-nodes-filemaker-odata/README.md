@@ -10,7 +10,7 @@ This is an n8n community node that lets you interact with FileMaker databases vi
 
 ### In n8n (Recommended)
 
-1. Go to **Settings** > **Community Nodes**
+1. Go to **Settings** → **Community Nodes**
 2. Click **Install a community node**
 3. Enter `n8n-nodes-filemaker-odata`
 4. Click **Install**
@@ -42,7 +42,7 @@ This node supports the following operations:
 
 | Operation | Description |
 |-----------|-------------|
-| **List** | Get all tables in the database |
+| **List Tables** | Get all tables in the database |
 | **Get Metadata** | Get OData schema metadata |
 
 ### Schema
@@ -58,7 +58,7 @@ This node supports the following operations:
 
 | Operation | Description |
 |-----------|-------------|
-| **Run** | Run a FileMaker script with optional parameter |
+| **Run Script** | Run a FileMaker script with optional parameter |
 
 ## Credentials
 
@@ -111,7 +111,7 @@ Data: {"CustomerID": "12345", "Product": "Widget", "Quantity": 5}
 
 ```
 Resource: Script
-Operation: Run
+Operation: Run Script
 Table: Customers
 Script Name: ProcessNewOrder
 Script Parameter: {"orderID": "ORD-001"}
@@ -142,4 +142,3 @@ The node uses OData v4 filter syntax. Examples:
 ## License
 
 MIT
-

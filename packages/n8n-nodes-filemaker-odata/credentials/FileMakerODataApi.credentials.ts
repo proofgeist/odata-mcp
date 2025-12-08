@@ -1,5 +1,6 @@
 import type {
 	IAuthenticateGeneric,
+	Icon,
 	ICredentialTestRequest,
 	ICredentialType,
 	INodeProperties,
@@ -7,8 +8,13 @@ import type {
 
 export class FileMakerODataApi implements ICredentialType {
 	name = 'fileMakerODataApi';
+
 	displayName = 'FileMaker OData API';
+
+	icon: Icon = 'file:../icons/filemaker.svg';
+
 	documentationUrl = 'https://github.com/proofgeist/fmodata';
+
 	properties: INodeProperties[] = [
 		{
 			displayName: 'Host',
@@ -36,24 +42,19 @@ export class FileMakerODataApi implements ICredentialType {
 				{
 					name: 'OttoFMS API Key',
 					value: 'otto',
-					description: 'Use OttoFMS API key authentication',
 				},
 				{
 					name: 'Basic Auth',
 					value: 'basic',
-					description: 'Use FileMaker username and password',
 				},
 			],
 			default: 'otto',
-			description: 'The authentication method to use',
 		},
 		{
 			displayName: 'OttoFMS API Key',
 			name: 'ottoApiKey',
 			type: 'string',
-			typeOptions: {
-				password: true,
-			},
+			typeOptions: { password: true },
 			default: '',
 			placeholder: 'dk_your-api-key',
 			description: 'OttoFMS API key (starts with dk_)',
@@ -68,8 +69,6 @@ export class FileMakerODataApi implements ICredentialType {
 			name: 'username',
 			type: 'string',
 			default: '',
-			placeholder: 'your-username',
-			description: 'FileMaker account username',
 			displayOptions: {
 				show: {
 					authType: ['basic'],
@@ -80,11 +79,8 @@ export class FileMakerODataApi implements ICredentialType {
 			displayName: 'Password',
 			name: 'password',
 			type: 'string',
-			typeOptions: {
-				password: true,
-			},
+			typeOptions: { password: true },
 			default: '',
-			description: 'FileMaker account password',
 			displayOptions: {
 				show: {
 					authType: ['basic'],
@@ -93,7 +89,16 @@ export class FileMakerODataApi implements ICredentialType {
 		},
 	];
 
-	// Test the credentials by listing tables
+	authenticate: IAuthenticateGeneric = {
+		type: 'generic',
+		properties: {
+			headers: {
+				Authorization:
+					'={{$credentials.authType === "otto" ? "KEY " + $credentials.ottoApiKey : "Basic " + $credentials.username.concat(":").concat($credentials.password).toBase64()}}',
+			},
+		},
+	};
+
 	test: ICredentialTestRequest = {
 		request: {
 			baseURL: '={{$credentials.host}}',
@@ -101,15 +106,4 @@ export class FileMakerODataApi implements ICredentialType {
 			method: 'GET',
 		},
 	};
-
-	authenticate: IAuthenticateGeneric = {
-		type: 'generic',
-		properties: {
-			headers: {
-				Authorization:
-					'={{$credentials.authType === "otto" ? "KEY " + $credentials.ottoApiKey : "Basic " + Buffer.from($credentials.username + ":" + $credentials.password).toString("base64")}}',
-			},
-		},
-	};
 }
-

@@ -1,0 +1,19 @@
+{
+	"node": "n8n-nodes-filemaker-odata",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Data & Storage", "Development"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://github.com/proofgeist/fmodata#credentials"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/proofgeist/fmodata/tree/main/packages/n8n-nodes-filemaker-odata"
+			}
+		]
+	}
+}
+
