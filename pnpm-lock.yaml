@@ -123,10 +123,6 @@ importers:
         version: 5.9.3
 
   packages/n8n-nodes-filemaker-odata:
-    dependencies:
-      fmodata:
-        specifier: workspace:*
-        version: link:../fmodata
     devDependencies:
       '@n8n/node-cli':
         specifier: ^0.17.0

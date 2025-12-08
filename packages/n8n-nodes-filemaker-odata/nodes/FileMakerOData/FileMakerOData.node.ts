@@ -5,9 +5,9 @@ import {
 	type INodeType,
 	type INodeTypeDescription,
 	type IDataObject,
+	type IHttpRequestMethods,
 	NodeOperationError,
 } from 'n8n-workflow';
-import { ODataApi, FetchAdapter, OttoAdapter, type ODataApiClient } from 'fmodata';
 import { recordDescription } from './resources/record';
 import { tableDescription } from './resources/table';
 import { schemaDescription } from './resources/schema';
@@ -83,34 +83,57 @@ export class FileMakerOData implements INodeType {
 		const database = credentials.database as string;
 		const authType = credentials.authType as string;
 
-		// Create the fmodata client
-		let client: ODataApiClient;
-
+		// Build base URL - handle OttoFMS vs Basic Auth
+		let baseUrl: string;
 		if (authType === 'otto') {
-			const apiKey = credentials.ottoApiKey as string;
-			client = ODataApi({
-				adapter: new OttoAdapter({
-					server: host,
-					database,
-					auth: { apiKey: apiKey as `dk_${string}` },
-				}),
-			});
+			// OttoFMS uses /otto/fmi/odata/v4 path
+			baseUrl = `${host}/otto/fmi/odata/v4/${encodeURIComponent(database)}`;
 		} else {
-			client = ODataApi({
-				adapter: new FetchAdapter({
-					server: host,
-					database,
-					auth: {
-						username: credentials.username as string,
-						password: credentials.password as string,
-					},
-				}),
-			});
+			baseUrl = `${host}/fmi/odata/v4/${encodeURIComponent(database)}`;
 		}
+
+		// Build auth header
+		let authHeader: string;
+		if (authType === 'otto') {
+			authHeader = `Bearer ${credentials.ottoApiKey}`;
+		} else {
+			const basicAuth = Buffer.from(
+				`${credentials.username}:${credentials.password}`,
+			).toString('base64');
+			authHeader = `Basic ${basicAuth}`;
+		}
+
+		// Helper function to make requests
+		const makeRequest = async (
+			method: IHttpRequestMethods,
+			endpoint: string,
+			body?: IDataObject,
+			qs?: IDataObject,
+		): Promise<IDataObject> => {
+			const options = {
+				method,
+				url: `${baseUrl}${endpoint}`,
+				headers: {
+					Authorization: authHeader,
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
+				body,
+				qs,
+				json: true,
+			};
+
+			return this.helpers.httpRequest(options);
+		};
+
+		// Helper to format record key (UUID vs numeric)
+		const formatKey = (key: string): string => {
+			return isNaN(Number(key)) ? `'${key}'` : key;
+		};
 
 		for (let i = 0; i < items.length; i++) {
 			try {
-				let result: unknown;
+				let result: IDataObject | IDataObject[] | number | string | undefined;
 
 				if (resource === 'record') {
 					const table = this.getNodeParameter('table', i) as string;
@@ -118,40 +141,61 @@ export class FileMakerOData implements INodeType {
 					switch (operation) {
 						case 'getMany': {
 							const options = this.getNodeParameter('options', i, {}) as IDataObject;
-							result = await client.getRecords(table, {
-								$filter: options.filter as string | undefined,
-								$select: options.select as string | undefined,
-								$expand: options.expand as string | undefined,
-								$orderby: options.orderby as string | undefined,
-								$top: options.top as number | undefined,
-								$skip: options.skip as number | undefined,
-								$count: options.count as boolean | undefined,
-							});
+							const qs: IDataObject = {};
+							if (options.filter) qs.$filter = options.filter;
+							if (options.select) qs.$select = options.select;
+							if (options.expand) qs.$expand = options.expand;
+							if (options.orderby) qs.$orderby = options.orderby;
+							if (options.top) qs.$top = options.top;
+							if (options.skip) qs.$skip = options.skip;
+							if (options.count) qs.$count = 'true';
+							result = await makeRequest('GET', `/${encodeURIComponent(table)}`, undefined, qs);
 							break;
 						}
 
 						case 'get': {
 							const key = this.getNodeParameter('key', i) as string;
 							const options = this.getNodeParameter('getOptions', i, {}) as IDataObject;
-							result = await client.getRecord(table, key, {
-								$select: options.select as string | undefined,
-								$expand: options.expand as string | undefined,
-							});
+							const qs: IDataObject = {};
+							if (options.select) qs.$select = options.select;
+							if (options.expand) qs.$expand = options.expand;
+							result = await makeRequest(
+								'GET',
+								`/${encodeURIComponent(table)}(${formatKey(key)})`,
+								undefined,
+								qs,
+							);
 							break;
 						}
 
 						case 'getCount': {
 							const options = this.getNodeParameter('countOptions', i, {}) as IDataObject;
-							result = await client.getRecordCount(table, {
-								$filter: options.filter as string | undefined,
+							const qs: IDataObject = {};
+							if (options.filter) qs.$filter = options.filter;
+							const response = await this.helpers.httpRequest({
+								method: 'GET',
+								url: `${baseUrl}/${encodeURIComponent(table)}/$count`,
+								headers: {
+									Authorization: authHeader,
+									Accept: 'text/plain',
+								},
+								qs,
 							});
+							result = { count: parseInt(response as string, 10) };
 							break;
 						}
 
 						case 'getFieldValue': {
 							const key = this.getNodeParameter('key', i) as string;
 							const field = this.getNodeParameter('field', i) as string;
-							result = await client.getFieldValue(table, key, field);
+							const response = await this.helpers.httpRequest({
+								method: 'GET',
+								url: `${baseUrl}/${encodeURIComponent(table)}(${formatKey(key)})/${encodeURIComponent(field)}/$value`,
+								headers: {
+									Authorization: authHeader,
+								},
+							});
+							result = { value: response };
 							break;
 						}
 
@@ -159,19 +203,24 @@ export class FileMakerOData implements INodeType {
 							const key = this.getNodeParameter('key', i) as string;
 							const navigation = this.getNodeParameter('navigation', i) as string;
 							const options = this.getNodeParameter('relatedOptions', i, {}) as IDataObject;
-							result = await client.navigateRelated(table, key, navigation, {
-								$filter: options.filter as string | undefined,
-								$select: options.select as string | undefined,
-								$top: options.top as number | undefined,
-								$skip: options.skip as number | undefined,
-							});
+							const qs: IDataObject = {};
+							if (options.filter) qs.$filter = options.filter;
+							if (options.select) qs.$select = options.select;
+							if (options.top) qs.$top = options.top;
+							if (options.skip) qs.$skip = options.skip;
+							result = await makeRequest(
+								'GET',
+								`/${encodeURIComponent(table)}(${formatKey(key)})/${encodeURIComponent(navigation)}`,
+								undefined,
+								qs,
+							);
 							break;
 						}
 
 						case 'create': {
 							const dataString = this.getNodeParameter('data', i) as string;
 							const data = JSON.parse(dataString);
-							result = await client.createRecord(table, { data });
+							result = await makeRequest('POST', `/${encodeURIComponent(table)}`, data);
 							break;
 						}
 
@@ -179,13 +228,17 @@ export class FileMakerOData implements INodeType {
 							const key = this.getNodeParameter('key', i) as string;
 							const dataString = this.getNodeParameter('data', i) as string;
 							const data = JSON.parse(dataString);
-							result = await client.updateRecord(table, key, { data });
+							result = await makeRequest(
+								'PATCH',
+								`/${encodeURIComponent(table)}(${formatKey(key)})`,
+								data,
+							);
 							break;
 						}
 
 						case 'delete': {
 							const key = this.getNodeParameter('key', i) as string;
-							await client.deleteRecord(table, key);
+							await makeRequest('DELETE', `/${encodeURIComponent(table)}(${formatKey(key)})`);
 							result = { success: true };
 							break;
 						}
@@ -193,10 +246,18 @@ export class FileMakerOData implements INodeType {
 				} else if (resource === 'table') {
 					switch (operation) {
 						case 'list':
-							result = await client.getTables();
+							result = await makeRequest('GET', '');
 							break;
 						case 'getMetadata':
-							result = await client.getMetadata();
+							const response = await this.helpers.httpRequest({
+								method: 'GET',
+								url: `${baseUrl}/$metadata`,
+								headers: {
+									Authorization: authHeader,
+									Accept: 'application/xml',
+								},
+							});
+							result = { metadata: response };
 							break;
 					}
 				} else if (resource === 'schema') {
@@ -205,14 +266,15 @@ export class FileMakerOData implements INodeType {
 							const tableName = this.getNodeParameter('tableName', i) as string;
 							const fieldsData = this.getNodeParameter('fields', i) as IDataObject;
 							const fields = (fieldsData.field as IDataObject[]) || [];
-							await client.createTable({
-								tableName,
-								fields: fields.map((f) => ({
-									name: f.name as string,
-									type: f.type as 'VARCHAR' | 'NUMERIC' | 'INT' | 'DATE' | 'TIME' | 'TIMESTAMP' | 'DECIMAL' | 'BLOB' | 'VARBINARY' | 'LONGVARBINARY' | 'BINARY VARYING' | 'CHARACTER VARYING',
-									nullable: f.nullable as boolean | undefined,
+							const body = {
+								TableName: tableName,
+								Fields: fields.map((f) => ({
+									Name: f.name,
+									Type: f.type,
+									Nullable: f.nullable ?? true,
 								})),
-							});
+							};
+							await makeRequest('POST', '/FileMaker_Tables', body);
 							result = { success: true, tableName };
 							break;
 						}
@@ -221,20 +283,21 @@ export class FileMakerOData implements INodeType {
 							const table = this.getNodeParameter('table', i) as string;
 							const fieldsData = this.getNodeParameter('newFields', i) as IDataObject;
 							const fields = (fieldsData.field as IDataObject[]) || [];
-							await client.addFields(table, {
-								fields: fields.map((f) => ({
-									name: f.name as string,
-									type: f.type as 'VARCHAR' | 'NUMERIC' | 'INT' | 'DATE' | 'TIME' | 'TIMESTAMP' | 'DECIMAL' | 'BLOB' | 'VARBINARY' | 'LONGVARBINARY' | 'BINARY VARYING' | 'CHARACTER VARYING',
-									nullable: f.nullable as boolean | undefined,
+							const body = {
+								Fields: fields.map((f) => ({
+									Name: f.name,
+									Type: f.type,
+									Nullable: f.nullable ?? true,
 								})),
-							});
+							};
+							await makeRequest('POST', `/${encodeURIComponent(table)}/FileMaker_Fields`, body);
 							result = { success: true, table, fieldsAdded: fields.length };
 							break;
 						}
 
 						case 'deleteTable': {
 							const table = this.getNodeParameter('table', i) as string;
-							await client.deleteTable(table);
+							await makeRequest('DELETE', `/FileMaker_Tables('${encodeURIComponent(table)}')`);
 							result = { success: true, table };
 							break;
 						}
@@ -242,7 +305,10 @@ export class FileMakerOData implements INodeType {
 						case 'deleteField': {
 							const table = this.getNodeParameter('table', i) as string;
 							const field = this.getNodeParameter('fieldToDelete', i) as string;
-							await client.deleteField(table, field);
+							await makeRequest(
+								'DELETE',
+								`/${encodeURIComponent(table)}/FileMaker_Fields('${encodeURIComponent(field)}')`,
+							);
 							result = { success: true, table, field };
 							break;
 						}
@@ -251,37 +317,34 @@ export class FileMakerOData implements INodeType {
 					if (operation === 'run') {
 						const script = this.getNodeParameter('script', i) as string;
 						const param = this.getNodeParameter('scriptParam', i, '') as string;
-						result = await client.runScript({
-							script,
-							param: param || undefined,
-						});
+
+						// Script endpoint uses POST with scriptParameterValue in body
+						const body = param ? { scriptParameterValue: param } : {};
+						result = await makeRequest('POST', `/Script.${encodeURIComponent(script)}`, body);
 					}
 				}
 
-				// Handle different response types
+				// Handle response
 				if (result !== undefined) {
-					if (typeof result === 'object' && result !== null && 'value' in (result as object) && Array.isArray((result as { value: unknown[] }).value)) {
-						// OData collection response - return each item separately
-						const odataResult = result as { value: IDataObject[]; '@odata.count'?: number };
-						for (const item of odataResult.value) {
+					if (
+						typeof result === 'object' &&
+						result !== null &&
+						'value' in result &&
+						Array.isArray(result.value)
+					) {
+						// OData collection response
+						for (const item of result.value as IDataObject[]) {
 							returnData.push({
 								json: item,
 								pairedItem: { item: i },
 							});
 						}
-						// Include count if present
-						if (odataResult['@odata.count'] !== undefined) {
+						if (result['@odata.count'] !== undefined) {
 							returnData.push({
-								json: { '@odata.count': odataResult['@odata.count'] },
+								json: { '@odata.count': result['@odata.count'] },
 								pairedItem: { item: i },
 							});
 						}
-					} else if (typeof result === 'number') {
-						// Count result
-						returnData.push({
-							json: { count: result },
-							pairedItem: { item: i },
-						});
 					} else {
 						returnData.push({
 							json: result as IDataObject,

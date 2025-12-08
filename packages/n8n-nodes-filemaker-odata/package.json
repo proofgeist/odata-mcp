@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-filemaker-odata",
-	"version": "0.2.4",
+	"version": "0.2.5",
 	"description": "n8n community node for FileMaker OData API - Query, create, update, and delete records in FileMaker databases",
 	"license": "MIT",
 	"homepage": "https://github.com/proofgeist/fmodata",
@@ -41,9 +41,6 @@
 		"nodes": [
 			"dist/nodes/FileMakerOData/FileMakerOData.node.js"
 		]
-	},
-	"dependencies": {
-		"fmodata": "workspace:*"
 	},
 	"devDependencies": {
 		"@n8n/node-cli": "^0.17.0",
