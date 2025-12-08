@@ -1,6 +1,6 @@
 {
   "name": "fmodata",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "FileMaker OData API client",
   "repository": {
     "type": "git",
@@ -14,16 +14,25 @@
   "types": "./dist/esm/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/esm/index.d.ts",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/esm/index.js",
-      "default": "./dist/esm/index.js"
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.cts",
+        "default": "./dist/cjs/index.cjs"
+      },
+      "default": "./dist/cjs/index.cjs"
     },
     "./adapters/*": {
-      "types": "./dist/esm/adapters/*.d.ts",
-      "import": "./dist/esm/adapters/*.js",
-      "require": "./dist/esm/adapters/*.js",
-      "default": "./dist/esm/adapters/*.js"
+      "import": {
+        "types": "./dist/esm/adapters/*.d.ts",
+        "default": "./dist/esm/adapters/*.js"
+      },
+      "require": {
+        "types": "./dist/cjs/adapters/*.d.cts",
+        "default": "./dist/cjs/adapters/*.cjs"
+      }
     },
     "./package.json": "./package.json"
   },
