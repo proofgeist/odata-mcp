@@ -22,11 +22,10 @@
 		"url": "https://github.com/proofgeist/fmodata.git"
 	},
 	"scripts": {
-		"build": "tsc && npm run copy-icons && npm run copy-json",
+		"build": "n8n-node build",
 		"build:watch": "tsc --watch",
-		"copy-icons": "copyfiles -u 0 \"icons/**/*.svg\" dist/",
-		"copy-json": "copyfiles -u 0 \"nodes/**/*.json\" dist/",
-		"lint": "eslint nodes credentials --ext .ts",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
 		"prepublishOnly": "npm run build"
 	},
 	"files": [
@@ -43,8 +42,8 @@
 		]
 	},
 	"devDependencies": {
-		"@types/node": "^20.10.0",
-		"copyfiles": "^2.4.1",
+		"@n8n/node-cli": "^0.17.0",
+		"n8n-workflow": "^1.22.0",
 		"typescript": "^5.3.0"
 	},
 	"peerDependencies": {

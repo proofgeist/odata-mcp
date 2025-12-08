@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "description": "FileMaker OData monorepo",
+  "pnpm": {
+    "overrides": {
+      "change-case": "4.1.2"
+    }
+  },
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
