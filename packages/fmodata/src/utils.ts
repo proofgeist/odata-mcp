@@ -156,12 +156,14 @@ export function buildBatchPath(databaseName: string): string {
 /**
  * Build OData URL path for running a FileMaker script
  * Per FileMaker OData API: POST /fmi/odata/v4/{database}/Script.{scriptName}
+ * Note: FileMaker OData doesn't support script names with special characters (@, &, /)
+ * or names beginning with a number, so we don't encode the script name.
  */
 export function buildScriptPath(
   databaseName: string,
   scriptName: string,
 ): string {
-  return `/fmi/odata/v4/${databaseName}/Script.${encodeURIComponent(scriptName)}`;
+  return `/fmi/odata/v4/${databaseName}/Script.${scriptName}`;
 }
 
 /**

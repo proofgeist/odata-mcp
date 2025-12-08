@@ -1,0 +1,16 @@
+# Source files
+nodes/
+credentials/
+*.ts
+!*.d.ts
+
+# Config files
+tsconfig.json
+.eslintrc.js
+
+# Development
+node_modules/
+.git/
+
+
+
