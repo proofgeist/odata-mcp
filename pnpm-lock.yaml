@@ -82,8 +82,8 @@ importers:
         specifier: ^4.21.2
         version: 4.21.2
       fmodata:
-        specifier: ^0.1.1
-        version: 0.1.1(@types/node@22.19.0)(jiti@2.6.1)(typescript@5.9.3)
+        specifier: ^0.1.2
+        version: 0.1.2(@types/node@22.19.0)(jiti@2.6.1)(typescript@5.9.3)
       mcp-handler:
         specifier: ^1.0.3
         version: 1.0.3(@modelcontextprotocol/sdk@1.21.0)
@@ -123,6 +123,10 @@ importers:
         version: 5.9.3
 
   packages/n8n-nodes-filemaker-odata:
+    dependencies:
+      fmodata:
+        specifier: workspace:*
+        version: link:../fmodata
     devDependencies:
       '@n8n/node-cli':
         specifier: ^0.17.0
@@ -2085,8 +2089,8 @@ packages:
   flatted@3.3.3:
     resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
 
-  fmodata@0.1.1:
-    resolution: {integrity: sha512-lfrhQszi3AHm5CxjpAC0zqb3T69asYFffnHdGcxetQ0g3ykEzy196z4aVAbFlSbfoGUHsGjZO5RgPQZOn68fXQ==}
+  fmodata@0.1.2:
+    resolution: {integrity: sha512-5uncZUCYhykN+9hw++FzrX1F0Ny7ATqM+cHBkSUAAtKX9gmVnuszpgwgJi2tg/dkyeMg3TaoNHaVJWz3CWQvvQ==}
     engines: {node: '>=18.0.0'}
 
   for-each@0.3.5:
@@ -5799,7 +5803,7 @@ snapshots:
 
   flatted@3.3.3: {}
 
-  fmodata@0.1.1(@types/node@22.19.0)(jiti@2.6.1)(typescript@5.9.3):
+  fmodata@0.1.2(@types/node@22.19.0)(jiti@2.6.1)(typescript@5.9.3):
     dependencies:
       '@tanstack/vite-config': 0.2.1(@types/node@22.19.0)(rollup@4.52.5)(typescript@5.9.3)(vite@6.4.1(@types/node@22.19.0)(jiti@2.6.1))
       vite: 6.4.1(@types/node@22.19.0)(jiti@2.6.1)

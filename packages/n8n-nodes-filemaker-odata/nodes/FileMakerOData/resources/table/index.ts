@@ -19,30 +19,14 @@ export const tableDescription: INodeProperties[] = [
 				value: 'list',
 				action: 'List all tables',
 				description: 'Get a list of all tables in the database',
-				routing: {
-					request: {
-						method: 'GET',
-						url: '',
-					},
-				},
 			},
 			{
 				name: 'Get Metadata',
 				value: 'getMetadata',
 				action: 'Get metadata',
 				description: 'Get OData metadata schema for the database',
-				routing: {
-					request: {
-						method: 'GET',
-						url: '/$metadata',
-						headers: {
-							Accept: 'application/xml',
-						},
-					},
-				},
 			},
 		],
 		default: 'list',
 	},
 ];
-

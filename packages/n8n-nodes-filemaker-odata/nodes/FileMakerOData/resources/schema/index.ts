@@ -20,48 +20,24 @@ export const schemaDescription: INodeProperties[] = [
 				value: 'addFields',
 				action: 'Add fields to a table',
 				description: 'Add fields to an existing table',
-				routing: {
-					request: {
-						method: 'POST',
-						url: '=/{{$parameter.table}}/FileMaker_Fields',
-					},
-				},
 			},
 			{
 				name: 'Create Table',
 				value: 'createTable',
 				action: 'Create a table',
 				description: 'Create a new table in the database',
-				routing: {
-					request: {
-						method: 'POST',
-						url: '/FileMaker_Tables',
-					},
-				},
 			},
 			{
 				name: 'Delete Field',
 				value: 'deleteField',
 				action: 'Delete a field',
 				description: 'Delete a field from a table',
-				routing: {
-					request: {
-						method: 'DELETE',
-						url: "=/{{$parameter.table}}/FileMaker_Fields('{{$parameter.fieldToDelete}}')",
-					},
-				},
 			},
 			{
 				name: 'Delete Table',
 				value: 'deleteTable',
 				action: 'Delete a table',
 				description: 'Delete a table from the database',
-				routing: {
-					request: {
-						method: 'DELETE',
-						url: "=/FileMaker_Tables('{{$parameter.table}}')",
-					},
-				},
 			},
 		],
 		default: 'createTable',
@@ -139,13 +115,6 @@ export const schemaDescription: INodeProperties[] = [
 				],
 			},
 		],
-		routing: {
-			send: {
-				type: 'body',
-				value:
-					'={{ { "TableName": $parameter.tableName, "Fields": ($parameter.fields?.field || []).map(f => ({ "Name": f.name, "Type": f.type, "Nullable": f.nullable })) } }}',
-			},
-		},
 	},
 	// Fields for addFields
 	{
@@ -195,13 +164,6 @@ export const schemaDescription: INodeProperties[] = [
 				],
 			},
 		],
-		routing: {
-			send: {
-				type: 'body',
-				value:
-					'={{ { "Fields": ($parameter.newFields?.field || []).map(f => ({ "Name": f.name, "Type": f.type, "Nullable": f.nullable })) } }}',
-			},
-		},
 	},
 	// Field to delete
 	{
@@ -219,4 +181,3 @@ export const schemaDescription: INodeProperties[] = [
 		},
 	},
 ];
-

@@ -41,6 +41,9 @@
 			"dist/nodes/FileMakerOData/FileMakerOData.node.js"
 		]
 	},
+	"dependencies": {
+		"fmodata": "workspace:*"
+	},
 	"devDependencies": {
 		"@n8n/node-cli": "^0.17.0",
 		"n8n-workflow": "^1.22.0",
