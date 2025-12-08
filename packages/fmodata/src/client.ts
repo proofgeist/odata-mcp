@@ -216,11 +216,8 @@ export function ODataApi<Adp extends Adapter = Adapter>(
   /**
    * Run a FileMaker script
    */
-  async function runScript(
-    table: string,
-    options: RunScriptOptions,
-  ): Promise<unknown> {
-    return adapter.runScript(table, options);
+  async function runScript(options: RunScriptOptions): Promise<unknown> {
+    return adapter.runScript(options);
   }
 
   /**

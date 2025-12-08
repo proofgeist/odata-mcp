@@ -168,7 +168,7 @@ export interface Adapter {
   /**
    * Run a FileMaker script
    */
-  runScript(table: string, options: RunScriptOptions): Promise<unknown>;
+  runScript(options: RunScriptOptions): Promise<unknown>;
 
   /**
    * Upload container data to a container field (deferred, interface planned)

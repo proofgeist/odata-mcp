@@ -177,13 +177,13 @@ Delete a field from a table.
 
 ### Script Execution
 
-#### `runScript(table, options)`
+#### `runScript(options)`
 
-Run a FileMaker script.
+Run a FileMaker script directly via the OData Script endpoint.
 
 **Options:**
 
-- `script`: Script name
+- `script`: Script name (required)
 - `param`: Optional script parameter
 
 ### Batch Operations

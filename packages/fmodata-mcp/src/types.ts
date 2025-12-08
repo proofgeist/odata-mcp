@@ -354,10 +354,6 @@ export const DeleteFieldSchema: JSONSchema7 = {
 export const RunScriptSchema: JSONSchema7 = {
   type: "object",
   properties: {
-    table: {
-      type: "string",
-      description: "The name of the table",
-    },
     script: {
       type: "string",
       description: "The name of the script to run",
@@ -367,7 +363,7 @@ export const RunScriptSchema: JSONSchema7 = {
       description: "Optional script parameter",
     },
   },
-  required: ["table", "script"],
+  required: ["script"],
   additionalProperties: false,
 };
 

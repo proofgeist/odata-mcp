@@ -36,6 +36,7 @@ import {
   buildCrossJoinPath,
   buildBatchPath,
   buildFileMakerTablesPath,
+  buildScriptPath,
   buildAcceptHeader,
   buildContentTypeHeader,
   encodeODataFilter,
@@ -560,18 +561,16 @@ export abstract class BaseFetchAdapter implements Adapter {
     });
   }
 
-  async runScript(table: string, options: RunScriptOptions): Promise<unknown> {
-    const path = buildTablePath(this.database, table);
-    const query = new URLSearchParams();
-    query.set("script", options.script);
-    if (options.param) {
-      query.set("script.param", options.param);
-    }
+  async runScript(options: RunScriptOptions): Promise<unknown> {
+    const path = buildScriptPath(this.database, options.script);
+
+    // Script parameter is passed in the request body, not query string
+    const body = options.param ? { scriptParameterValue: options.param } : {};
 
     return this.request<unknown>({
       path,
-      query,
       method: "POST",
+      body,
       timeout: options.timeout,
       fetchOptions: options.fetch,
     });

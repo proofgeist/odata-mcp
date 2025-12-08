@@ -30,12 +30,11 @@ export async function handleScriptTool(
 ): Promise<unknown> {
   switch (name) {
     case "fmodata_run_script": {
-      const { table, script, param } = args as {
-        table: string;
+      const { script, param } = args as {
         script: string;
         param?: string;
       };
-      return await client.runScript(table, { script, param });
+      return await client.runScript({ script, param });
     }
     case "fmodata_batch": {
       const { requests } = args as {

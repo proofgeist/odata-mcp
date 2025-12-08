@@ -154,6 +154,17 @@ export function buildBatchPath(databaseName: string): string {
 }
 
 /**
+ * Build OData URL path for running a FileMaker script
+ * Per FileMaker OData API: POST /fmi/odata/v4/{database}/Script.{scriptName}
+ */
+export function buildScriptPath(
+  databaseName: string,
+  scriptName: string,
+): string {
+  return `/fmi/odata/v4/${databaseName}/Script.${encodeURIComponent(scriptName)}`;
+}
+
+/**
  * Build Accept header value based on format options
  */
 export function buildAcceptHeader(options?: {

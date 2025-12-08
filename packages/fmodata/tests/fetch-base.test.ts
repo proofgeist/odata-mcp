@@ -525,18 +525,16 @@ describe("BaseFetchAdapter", () => {
       const mockResponse = { scriptResult: "success" };
       mockFetch.mockResolvedValueOnce(createMockResponse(mockResponse));
 
-      const result = await adapter.runScript("TestTable", {
+      const result = await adapter.runScript({
         script: "MyScript",
       });
 
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("/fmi/odata/v4/TestDatabase/TestTable"),
+        expect.stringContaining("/fmi/odata/v4/TestDatabase/Script.MyScript"),
         expect.objectContaining({
           method: "POST",
         }),
       );
-      const callUrl = mockFetch.mock.calls[0]?.[0] as string;
-      expect(callUrl).toContain("script=MyScript");
       expect(result).toEqual(mockResponse);
     });
 
@@ -545,14 +543,18 @@ describe("BaseFetchAdapter", () => {
         createMockResponse({ scriptResult: "success" }),
       );
 
-      await adapter.runScript("TestTable", {
+      await adapter.runScript({
         script: "MyScript",
         param: "paramValue",
       });
 
-      const callUrl = mockFetch.mock.calls[0]?.[0] as string;
-      expect(callUrl).toContain("script=MyScript");
-      expect(callUrl).toContain("script.param=paramValue");
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining("/fmi/odata/v4/TestDatabase/Script.MyScript"),
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({ scriptParameterValue: "paramValue" }),
+        }),
+      );
     });
   });
 
