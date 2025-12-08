@@ -110,16 +110,30 @@ export class FileMakerOData implements INodeType {
 			body?: IDataObject,
 			qs?: IDataObject,
 		): Promise<IDataObject> => {
+			// Build query string manually to handle OData $ params properly
+			let url = `${baseUrl}${endpoint}`;
+			if (qs && Object.keys(qs).length > 0) {
+				const params = new URLSearchParams();
+				for (const [key, value] of Object.entries(qs)) {
+					if (value !== undefined && value !== null && value !== '') {
+						params.append(key, String(value));
+					}
+				}
+				const queryString = params.toString();
+				if (queryString) {
+					url += `?${queryString}`;
+				}
+			}
+
 			const options = {
 				method,
-				url: `${baseUrl}${endpoint}`,
+				url,
 				headers: {
 					Authorization: authHeader,
 					'Content-Type': 'application/json',
 					Accept: 'application/json',
 				},
 				body,
-				qs,
 				json: true,
 			};
 
