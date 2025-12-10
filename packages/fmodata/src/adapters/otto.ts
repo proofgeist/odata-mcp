@@ -1,5 +1,7 @@
 import { BaseFetchAdapter } from "./fetch-base.js";
 import type { BaseFetchAdapterOptions } from "./fetch-base-types.js";
+import type { BaseRequestOptions } from "./core.js";
+import type { ODataResponse, ODataTable } from "../client-types.js";
 
 export type Otto3APIKey = `KEY_${string}`;
 export type OttoFMSAPIKey = `dk_${string}`;
@@ -93,5 +95,63 @@ export class OttoAdapter extends BaseFetchAdapter {
   protected override async getAuthHeader(): Promise<string> {
     // Otto uses API key directly as Bearer token
     return `Bearer ${this.apiKey}`;
+  }
+
+  /**
+   * Override getTables for OttoFMS to use metadata fallback
+   * The OttoFMS proxy may not properly route the base database URL for listing tables,
+   * so we parse table names from the $metadata endpoint instead.
+   */
+  override async getTables(
+    options?: BaseRequestOptions,
+  ): Promise<ODataResponse<ODataTable>> {
+    // Only use fallback for OttoFMS keys
+    if (!isOttoFMSAPIKey(this.apiKey)) {
+      return super.getTables(options);
+    }
+
+    // Try the standard endpoint first
+    try {
+      return await super.getTables(options);
+    } catch (error) {
+      // If unauthorized, fall back to parsing metadata
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (!errorMessage.toLowerCase().includes("unauthorized")) {
+        throw error;
+      }
+    }
+
+    // Fallback: Parse table names from metadata
+    const metadata = await this.getMetadata(options);
+    const tables = this.parseTablesFromMetadata(metadata as unknown as string);
+
+    return {
+      "@odata.context": `${this.baseUrl.toString()}/$metadata`,
+      value: tables,
+    };
+  }
+
+  /**
+   * Parse EntitySet names from OData XML metadata
+   */
+  private parseTablesFromMetadata(metadataXml: string): ODataTable[] {
+    const tables: ODataTable[] = [];
+
+    // Match EntitySet elements: <EntitySet Name="TableName" ...>
+    const entitySetRegex = /<EntitySet\s+Name="([^"]+)"/g;
+    let match;
+
+    while ((match = entitySetRegex.exec(metadataXml)) !== null) {
+      const tableName = match[1];
+      if (tableName) {
+        tables.push({
+          name: tableName,
+          kind: "EntitySet",
+          url: tableName,
+        });
+      }
+    }
+
+    return tables;
   }
 }
