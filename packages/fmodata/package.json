@@ -1,6 +1,6 @@
 {
   "name": "fmodata",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "FileMaker OData API client",
   "repository": {
     "type": "git",

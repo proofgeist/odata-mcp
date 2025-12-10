@@ -115,7 +115,8 @@ export class OttoAdapter extends BaseFetchAdapter {
       return await super.getTables(options);
     } catch (error) {
       // If unauthorized, fall back to parsing metadata
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       if (!errorMessage.toLowerCase().includes("unauthorized")) {
         throw error;
       }
