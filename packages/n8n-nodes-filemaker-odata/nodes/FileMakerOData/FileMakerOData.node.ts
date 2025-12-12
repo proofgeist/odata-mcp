@@ -1,6 +1,7 @@
 import {
 	NodeConnectionTypes,
 	type IExecuteFunctions,
+	type ILoadOptionsFunctions,
 	type INodeExecutionData,
 	type INodeType,
 	type INodeTypeDescription,
@@ -69,6 +70,81 @@ export class FileMakerOData implements INodeType {
 			...schemaDescription,
 			...scriptDescription,
 		],
+	};
+
+	methods = {
+		loadOptions: {
+			async loadTables(this: ILoadOptionsFunctions) {
+				try {
+					// Get credentials
+					const credentials = await this.getCredentials('fileMakerODataApi');
+					const host = (credentials.host as string).replace(/\/$/, '');
+					const database = credentials.database as string;
+					const authType = credentials.authType as string;
+
+					// Build base URL - handle OttoFMS vs Basic Auth
+					let baseUrl: string;
+					if (authType === 'otto') {
+						// OttoFMS uses /otto/fmi/odata/v4 path
+						baseUrl = `${host}/otto/fmi/odata/v4/${encodeURIComponent(database)}`;
+					} else {
+						baseUrl = `${host}/fmi/odata/v4/${encodeURIComponent(database)}`;
+					}
+
+					// Build auth header
+					let authHeader: string;
+					if (authType === 'otto') {
+						authHeader = `Bearer ${credentials.ottoApiKey}`;
+					} else {
+						const basicAuth = Buffer.from(
+							`${credentials.username}:${credentials.password}`,
+						).toString('base64');
+						authHeader = `Basic ${basicAuth}`;
+					}
+
+					// Make request to list tables (GET to base URL)
+					const response = await this.helpers.httpRequest({
+						method: 'GET',
+						url: baseUrl,
+						headers: {
+							Authorization: authHeader,
+							Accept: 'application/json',
+						},
+						json: true,
+					});
+
+					// Extract table names from OData response
+					// Response format: { value: [{ name: "Table1", ... }] } or { value: [{ Name: "Table1", ... }] }
+					const tables: Array<{ name: string; value: string }> = [];
+					
+					if (response && typeof response === 'object' && 'value' in response) {
+						const value = response.value;
+						if (Array.isArray(value)) {
+							for (const table of value) {
+								if (table && typeof table === 'object') {
+									// Try both 'name' (OData standard) and 'Name' (FileMaker might use)
+									const tableName = (table.name as string) || (table.Name as string);
+									if (tableName) {
+										tables.push({
+											name: String(tableName),
+											value: String(tableName),
+										});
+									}
+								}
+							}
+						}
+					}
+
+					// Sort tables alphabetically
+					tables.sort((a, b) => a.name.localeCompare(b.name));
+
+					return tables;
+				} catch (error) {
+					// If loading fails, return empty array so user can still type manually
+					return [];
+				}
+			},
+		},
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {

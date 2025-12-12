@@ -3,7 +3,10 @@ import type { INodeProperties } from 'n8n-workflow';
 export const tableNameField: INodeProperties = {
 	displayName: 'Table Name',
 	name: 'table',
-	type: 'string',
+	type: 'options',
+	typeOptions: {
+		loadOptionsMethod: 'loadTables',
+	},
 	default: '',
 	required: true,
 	description: 'The name of the table',
@@ -32,4 +35,5 @@ export const fieldTypes = [
 	{ name: 'Binary Varying', value: 'BINARY VARYING' },
 	{ name: 'Character Varying', value: 'CHARACTER VARYING' },
 ];
+
 

@@ -1,2 +1,5 @@
 dist
 node_modules
+dev.sh
+dev.js
+.env
