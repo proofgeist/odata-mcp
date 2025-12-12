@@ -179,6 +179,55 @@ export class FileMakerOData implements INodeType {
 			authHeader = `Basic ${basicAuth}`;
 		}
 
+		/**
+		 * Encode OData filter expression for FileMaker
+		 * FileMaker OData expects filter expressions to be minimally encoded.
+		 * Per FileMaker documentation examples, most characters remain literal.
+		 */
+		const encodeODataFilter = (filter: string): string => {
+			// FileMaker OData examples show filters with spaces, commas, quotes as literal characters
+			// Only encode characters that absolutely break URL syntax: & # % (for query param safety)
+			return filter
+				.replace(/%/g, '%25') // Encode % first
+				.replace(/&/g, '%26') // Ampersand
+				.replace(/#/g, '%23'); // Hash
+		};
+
+		/**
+		 * Build OData query string manually to avoid URLSearchParams encoding issues
+		 * n8n's httpRequest qs option may over-encode OData parameters
+		 */
+		const buildODataQueryString = (qs: IDataObject): string => {
+			const parts: string[] = [];
+
+			if (qs.$filter) {
+				const encodedFilter = encodeODataFilter(String(qs.$filter));
+				parts.push(`$filter=${encodedFilter}`);
+			}
+			if (qs.$select) {
+				// Remove spaces from $select - FileMaker expects comma-separated with no spaces
+				const selectFields = String(qs.$select).replace(/\s+/g, '');
+				parts.push(`$select=${selectFields}`);
+			}
+			if (qs.$expand) {
+				parts.push(`$expand=${encodeURIComponent(String(qs.$expand))}`);
+			}
+			if (qs.$orderby) {
+				parts.push(`$orderby=${encodeURIComponent(String(qs.$orderby))}`);
+			}
+			if (qs.$top !== undefined) {
+				parts.push(`$top=${qs.$top}`);
+			}
+			if (qs.$skip !== undefined) {
+				parts.push(`$skip=${qs.$skip}`);
+			}
+			if (qs.$count) {
+				parts.push('$count=true');
+			}
+
+			return parts.join('&');
+		};
+
 		// Helper function to make requests
 		const makeRequest = async (
 			method: IHttpRequestMethods,
@@ -186,22 +235,23 @@ export class FileMakerOData implements INodeType {
 			body?: IDataObject,
 			qs?: IDataObject,
 		): Promise<IDataObject> => {
-			// Build query string manually to handle OData $ params properly
+			// Build URL with OData query string manually to avoid encoding issues
 			let url = `${baseUrl}${endpoint}`;
+
 			if (qs && Object.keys(qs).length > 0) {
-				const params = new URLSearchParams();
-				for (const [key, value] of Object.entries(qs)) {
-					if (value !== undefined && value !== null && value !== '') {
-						params.append(key, String(value));
-					}
-				}
-				const queryString = params.toString();
+				const queryString = buildODataQueryString(qs);
 				if (queryString) {
 					url += `?${queryString}`;
 				}
 			}
 
-			const options = {
+			const options: {
+				method: IHttpRequestMethods;
+				url: string;
+				headers: Record<string, string>;
+				body?: IDataObject;
+				json: boolean;
+			} = {
 				method,
 				url,
 				headers: {
@@ -209,9 +259,12 @@ export class FileMakerOData implements INodeType {
 					'Content-Type': 'application/json',
 					Accept: 'application/json',
 				},
-				body,
 				json: true,
 			};
+
+			if (body) {
+				options.body = body;
+			}
 
 			return this.helpers.httpRequest(options);
 		};
@@ -260,16 +313,19 @@ export class FileMakerOData implements INodeType {
 
 						case 'getCount': {
 							const options = this.getNodeParameter('countOptions', i, {}) as IDataObject;
-							const qs: IDataObject = {};
-							if (options.filter) qs.$filter = options.filter;
+							// Build URL with filter manually to avoid encoding issues
+							let countUrl = `${baseUrl}/${encodeURIComponent(table)}/$count`;
+							if (options.filter) {
+								const encodedFilter = encodeODataFilter(String(options.filter));
+								countUrl += `?$filter=${encodedFilter}`;
+							}
 							const response = await this.helpers.httpRequest({
 								method: 'GET',
-								url: `${baseUrl}/${encodeURIComponent(table)}/$count`,
+								url: countUrl,
 								headers: {
 									Authorization: authHeader,
 									Accept: 'text/plain',
 								},
-								qs,
 							});
 							result = { count: parseInt(response as string, 10) };
 							break;
