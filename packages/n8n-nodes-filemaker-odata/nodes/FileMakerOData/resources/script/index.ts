@@ -26,7 +26,10 @@ export const scriptDescription: INodeProperties[] = [
 	{
 		displayName: 'Script Name',
 		name: 'script',
-		type: 'string',
+		type: 'options',
+		typeOptions: {
+			loadOptionsMethod: 'loadScripts',
+		},
 		default: '',
 		required: true,
 		description: 'The name of the script to run',

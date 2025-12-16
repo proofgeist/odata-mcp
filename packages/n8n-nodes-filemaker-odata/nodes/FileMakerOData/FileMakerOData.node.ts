@@ -144,6 +144,161 @@ export class FileMakerOData implements INodeType {
 					return [];
 				}
 			},
+
+			async loadScripts(this: ILoadOptionsFunctions) {
+				try {
+					// Get credentials
+					const credentials = await this.getCredentials('fileMakerODataApi');
+					const host = (credentials.host as string).replace(/\/$/, '');
+					const database = credentials.database as string;
+					const authType = credentials.authType as string;
+
+					// Build base URL - handle OttoFMS vs Basic Auth
+					let baseUrl: string;
+					if (authType === 'otto') {
+						baseUrl = `${host}/otto/fmi/odata/v4/${encodeURIComponent(database)}`;
+					} else {
+						baseUrl = `${host}/fmi/odata/v4/${encodeURIComponent(database)}`;
+					}
+
+					// Build auth header
+					let authHeader: string;
+					if (authType === 'otto') {
+						authHeader = `Bearer ${credentials.ottoApiKey}`;
+					} else {
+						const basicAuth = Buffer.from(
+							`${credentials.username}:${credentials.password}`,
+						).toString('base64');
+						authHeader = `Basic ${basicAuth}`;
+					}
+
+					// Fetch metadata XML
+					const metadataXml = await this.helpers.httpRequest({
+						method: 'GET',
+						url: `${baseUrl}/$metadata`,
+						headers: {
+							Authorization: authHeader,
+							Accept: 'application/xml',
+						},
+					});
+
+					// Parse script names from metadata
+					// Scripts can be exposed as FunctionImport, ActionImport, or other elements with Name="Script.ScriptName"
+					const scripts: Array<{ name: string; value: string }> = [];
+					
+					if (typeof metadataXml === 'string') {
+						// Match any element with Name="Script.ScriptName" pattern
+						// This covers FunctionImport, ActionImport, and other possible formats
+						const scriptRegex = /Name="Script\.([^"]+)"/g;
+						let match;
+						const seenScripts = new Set<string>();
+
+						while ((match = scriptRegex.exec(metadataXml)) !== null) {
+							const scriptName = match[1];
+							if (scriptName && !seenScripts.has(scriptName)) {
+								seenScripts.add(scriptName);
+								scripts.push({
+									name: scriptName,
+									value: scriptName,
+								});
+							}
+						}
+					}
+
+					// Sort scripts alphabetically
+					scripts.sort((a, b) => a.name.localeCompare(b.name));
+
+					return scripts;
+				} catch (error) {
+					// If loading fails, return empty array so user can still type manually
+					return [];
+				}
+			},
+
+			async loadFields(this: ILoadOptionsFunctions) {
+				try {
+					// Get the selected table name
+					const table = this.getCurrentNodeParameter('table') as string;
+					if (!table) {
+						return [];
+					}
+
+					// Get credentials
+					const credentials = await this.getCredentials('fileMakerODataApi');
+					const host = (credentials.host as string).replace(/\/$/, '');
+					const database = credentials.database as string;
+					const authType = credentials.authType as string;
+
+					// Build base URL - handle OttoFMS vs Basic Auth
+					let baseUrl: string;
+					if (authType === 'otto') {
+						baseUrl = `${host}/otto/fmi/odata/v4/${encodeURIComponent(database)}`;
+					} else {
+						baseUrl = `${host}/fmi/odata/v4/${encodeURIComponent(database)}`;
+					}
+
+					// Build auth header
+					let authHeader: string;
+					if (authType === 'otto') {
+						authHeader = `Bearer ${credentials.ottoApiKey}`;
+					} else {
+						const basicAuth = Buffer.from(
+							`${credentials.username}:${credentials.password}`,
+						).toString('base64');
+						authHeader = `Basic ${basicAuth}`;
+					}
+
+					// Fetch metadata XML
+					const metadataXml = await this.helpers.httpRequest({
+						method: 'GET',
+						url: `${baseUrl}/$metadata`,
+						headers: {
+							Authorization: authHeader,
+							Accept: 'application/xml',
+						},
+					});
+
+					// Parse field names from metadata for the selected table
+					// Fields are exposed as Property elements within EntityType
+					// EntityType Name has underscore suffix (e.g., "Projects_" for table "Projects")
+					const fields: Array<{ name: string; value: string }> = [];
+					
+					if (typeof metadataXml === 'string') {
+						// Find the EntityType for this table (with underscore suffix)
+						// Match: <EntityType Name="TableName_">...properties...</EntityType>
+						const entityTypeRegex = new RegExp(
+							`<EntityType\\s+Name="${table}_"[^>]*>([\\s\\S]*?)</EntityType>`,
+							'i'
+						);
+						const entityMatch = entityTypeRegex.exec(metadataXml);
+
+						if (entityMatch && entityMatch[1]) {
+							const entityContent = entityMatch[1];
+							// Extract Property names from the EntityType content
+							const propertyRegex = /<Property\s+Name="([^"]+)"/g;
+							let match;
+
+							while ((match = propertyRegex.exec(entityContent)) !== null) {
+								const fieldName = match[1];
+								if (fieldName) {
+									fields.push({
+										name: fieldName,
+										value: fieldName,
+									});
+								}
+							}
+						}
+					}
+
+					// Sort fields alphabetically
+					fields.sort((a, b) => a.name.localeCompare(b.name));
+
+					return fields;
+				} catch (error) {
+					// If loading fails, return empty array so user can still type manually
+					return [];
+				}
+			},
 		},
 	};
 
@@ -286,7 +441,12 @@ export class FileMakerOData implements INodeType {
 							const options = this.getNodeParameter('options', i, {}) as IDataObject;
 							const qs: IDataObject = {};
 							if (options.filter) qs.$filter = options.filter;
-							if (options.select) qs.$select = options.select;
+							if (options.select) {
+								// Handle both array (multiOptions) and string formats
+								qs.$select = Array.isArray(options.select) 
+									? (options.select as string[]).join(',') 
+									: options.select;
+							}
 							if (options.expand) qs.$expand = options.expand;
 							if (options.orderby) qs.$orderby = options.orderby;
 							if (options.top) qs.$top = options.top;
@@ -300,7 +460,12 @@ export class FileMakerOData implements INodeType {
 							const key = this.getNodeParameter('key', i) as string;
 							const options = this.getNodeParameter('getOptions', i, {}) as IDataObject;
 							const qs: IDataObject = {};
-							if (options.select) qs.$select = options.select;
+							if (options.select) {
+								// Handle both array (multiOptions) and string formats
+								qs.$select = Array.isArray(options.select) 
+									? (options.select as string[]).join(',') 
+									: options.select;
+							}
 							if (options.expand) qs.$expand = options.expand;
 							result = await makeRequest(
 								'GET',
@@ -351,7 +516,12 @@ export class FileMakerOData implements INodeType {
 							const options = this.getNodeParameter('relatedOptions', i, {}) as IDataObject;
 							const qs: IDataObject = {};
 							if (options.filter) qs.$filter = options.filter;
-							if (options.select) qs.$select = options.select;
+							if (options.select) {
+								// Handle both array (multiOptions) and string formats
+								qs.$select = Array.isArray(options.select) 
+									? (options.select as string[]).join(',') 
+									: options.select;
+							}
 							if (options.top) qs.$top = options.top;
 							if (options.skip) qs.$skip = options.skip;
 							result = await makeRequest(

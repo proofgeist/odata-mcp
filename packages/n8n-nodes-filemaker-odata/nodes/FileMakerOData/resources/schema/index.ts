@@ -169,7 +169,11 @@ export const schemaDescription: INodeProperties[] = [
 	{
 		displayName: 'Field to Delete',
 		name: 'fieldToDelete',
-		type: 'string',
+		type: 'options',
+		typeOptions: {
+			loadOptionsMethod: 'loadFields',
+			loadOptionsDependsOn: ['table'],
+		},
 		default: '',
 		required: true,
 		description: 'The name of the field to delete',

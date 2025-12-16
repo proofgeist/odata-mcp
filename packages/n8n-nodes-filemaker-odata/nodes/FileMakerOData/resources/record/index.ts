@@ -151,9 +151,13 @@ export const recordDescription: INodeProperties[] = [
 			{
 				displayName: 'Select Fields',
 				name: 'select',
-				type: 'string',
-				default: '',
-				description: 'Comma-separated list of fields to return',
+				type: 'multiOptions',
+				typeOptions: {
+					loadOptionsMethod: 'loadFields',
+					loadOptionsDependsOn: ['table'],
+				},
+				default: [],
+				description: 'Fields to return (leave empty for all fields)',
 			},
 			{
 				displayName: 'Expand Relations',
@@ -215,9 +219,13 @@ export const recordDescription: INodeProperties[] = [
 			{
 				displayName: 'Select Fields',
 				name: 'select',
-				type: 'string',
-				default: '',
-				description: 'Comma-separated list of fields to return',
+				type: 'multiOptions',
+				typeOptions: {
+					loadOptionsMethod: 'loadFields',
+					loadOptionsDependsOn: ['table'],
+				},
+				default: [],
+				description: 'Fields to return (leave empty for all fields)',
 			},
 			{
 				displayName: 'Expand Relations',
@@ -252,9 +260,13 @@ export const recordDescription: INodeProperties[] = [
 			{
 				displayName: 'Select Fields',
 				name: 'select',
-				type: 'string',
-				default: '',
-				description: 'Comma-separated list of fields to return',
+				type: 'multiOptions',
+				typeOptions: {
+					loadOptionsMethod: 'loadFields',
+					loadOptionsDependsOn: ['table'],
+				},
+				default: [],
+				description: 'Fields to return (leave empty for all fields)',
 			},
 			{
 				displayName: 'Limit',
