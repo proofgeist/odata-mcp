@@ -10,6 +10,10 @@ interface ODataConfig {
   password?: string;
   ottoApiKey?: string;
   ottoPort?: number;
+  proofchatFmSecret?: string;
+  proofchatLicenseKey?: string;
+  proofchatActivationData?: string;
+  proofchatOpenAIKey?: string;
 }
 
 function getConfigFromHeaders(req: Request): Partial<ODataConfig> {
@@ -48,6 +52,23 @@ function getConfigFromHeaders(req: Request): Partial<ODataConfig> {
     process.env.FMODATA_OTTO_PORT;
   const ottoPort = ottoPortStr ? parseInt(ottoPortStr, 10) : undefined;
 
+  const proofchatFmSecret =
+    getHeader("x-proofchat-fm-secret") ||
+    getHeader("proofchat-fm-secret") ||
+    process.env.PROOFCHAT_FM_SECRET;
+  const proofchatLicenseKey =
+    getHeader("x-proofchat-license-key") ||
+    getHeader("proofchat-license-key") ||
+    process.env.PROOFCHAT_LICENSE_KEY;
+  const proofchatActivationData =
+    getHeader("x-proofchat-activation-data") ||
+    getHeader("proofchat-activation-data") ||
+    process.env.PROOFCHAT_ACTIVATION_DATA;
+  const proofchatOpenAIKey =
+    getHeader("x-proofchat-openai-key") ||
+    getHeader("proofchat-openai-key") ||
+    process.env.OPENAI_API_KEY;
+
   return {
     host,
     database,
@@ -55,6 +76,10 @@ function getConfigFromHeaders(req: Request): Partial<ODataConfig> {
     password,
     ottoApiKey,
     ottoPort,
+    proofchatFmSecret,
+    proofchatLicenseKey,
+    proofchatActivationData,
+    proofchatOpenAIKey,
   };
 }
 

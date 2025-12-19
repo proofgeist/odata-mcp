@@ -395,3 +395,15 @@ export const BatchRequestsSchema: JSONSchema7 = {
   additionalProperties: false,
 };
 
+export const TextToClipboardSchema: JSONSchema7 = {
+  type: "object",
+  properties: {
+    text: {
+      type: "string",
+      description: "FileMaker script in text format to convert and place on clipboard",
+    },
+  },
+  required: ["text"],
+  additionalProperties: false,
+};
+

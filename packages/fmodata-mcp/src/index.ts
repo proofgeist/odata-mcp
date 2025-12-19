@@ -38,6 +38,10 @@ import { startServer } from "./server.js";
  *   --password=secret
  *   --ottoApiKey=dk_xxx
  *   --ottoPort=3030
+ *   --proofchatFmSecret=xxx
+ *   --proofchatLicenseKey=xxx
+ *   --proofchatActivationData=xxx
+ *   --proofchatOpenAIKey=xxx
  */
 function parseArgs(): Partial<ODataConfig> {
   const args = process.argv.slice(2);
@@ -78,6 +82,18 @@ function parseArgs(): Partial<ODataConfig> {
         case "ottoPort":
         case "port":
           config.ottoPort = parseInt(value, 10);
+          break;
+        case "proofchatFmSecret":
+          config.proofchatFmSecret = value;
+          break;
+        case "proofchatLicenseKey":
+          config.proofchatLicenseKey = value;
+          break;
+        case "proofchatActivationData":
+          config.proofchatActivationData = value;
+          break;
+        case "proofchatOpenAIKey":
+          config.proofchatOpenAIKey = value;
           break;
       }
     }
@@ -120,6 +136,22 @@ function parseArgs(): Partial<ODataConfig> {
           case "ottoPort":
           case "port":
             config.ottoPort = parseInt(value, 10);
+            i++; // Skip next arg
+            break;
+          case "proofchatFmSecret":
+            config.proofchatFmSecret = value;
+            i++; // Skip next arg
+            break;
+          case "proofchatLicenseKey":
+            config.proofchatLicenseKey = value;
+            i++; // Skip next arg
+            break;
+          case "proofchatActivationData":
+            config.proofchatActivationData = value;
+            i++; // Skip next arg
+            break;
+          case "proofchatOpenAIKey":
+            config.proofchatOpenAIKey = value;
             i++; // Skip next arg
             break;
         }

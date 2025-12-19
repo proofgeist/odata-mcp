@@ -26,6 +26,10 @@ import {
   createScriptTools,
   handleScriptTool,
 } from "./tools/scripts.js";
+import {
+  createClipboardTools,
+  handleClipboardTool,
+} from "./tools/clipboard.js";
 
 /**
  * Configuration options for the OData client
@@ -37,6 +41,11 @@ export interface ODataConfig {
   password?: string;
   ottoApiKey?: string;
   ottoPort?: number;
+  // ProofChat API credentials for text-to-clipboard tool
+  proofchatFmSecret?: string;
+  proofchatLicenseKey?: string;
+  proofchatActivationData?: string;
+  proofchatOpenAIKey?: string;
 }
 
 /**
@@ -68,6 +77,12 @@ function readConfig(config?: Partial<ODataConfig>): ODataConfig {
     (process.env.FMODATA_OTTO_PORT
       ? parseInt(process.env.FMODATA_OTTO_PORT.trim(), 10)
       : undefined);
+  
+  // ProofChat API credentials (for text-to-clipboard tool)
+  const proofchatFmSecret = config?.proofchatFmSecret || cleanString(process.env.PROOFCHAT_FM_SECRET);
+  const proofchatLicenseKey = config?.proofchatLicenseKey || cleanString(process.env.PROOFCHAT_LICENSE_KEY);
+  const proofchatActivationData = config?.proofchatActivationData || cleanString(process.env.PROOFCHAT_ACTIVATION_DATA);
+  const proofchatOpenAIKey = config?.proofchatOpenAIKey || cleanString(process.env.OPENAI_API_KEY);
 
   return {
     host,
@@ -76,6 +91,10 @@ function readConfig(config?: Partial<ODataConfig>): ODataConfig {
     password,
     ottoApiKey,
     ottoPort,
+    proofchatFmSecret,
+    proofchatLicenseKey,
+    proofchatActivationData,
+    proofchatOpenAIKey,
   };
 }
 
@@ -161,6 +180,7 @@ export async function createServer(
     ...createCrudTools(client),
     ...createSchemaTools(client),
     ...createScriptTools(client),
+    ...createClipboardTools(client, cfg),
   ];
 
   // List available tools
@@ -221,6 +241,8 @@ export async function createServer(
           name.startsWith("fmodata_batch")
         ) {
           result = await handleScriptTool(client, name, args);
+        } else if (name.startsWith("fmodata_text_to_clipboard")) {
+          result = await handleClipboardTool(client, name, args);
         } else {
           throw new Error(`Unknown tool: ${name}`);
         }

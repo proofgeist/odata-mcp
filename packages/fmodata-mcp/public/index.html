@@ -681,6 +681,35 @@
                         </div>
                     </div>
 
+                    <details style="margin-top: 1.5rem; background: var(--bg-tertiary); border: 1px solid var(--border-default); border-radius: var(--radius-md); overflow: hidden;">
+                        <summary style="padding: 0.75rem 1rem; cursor: pointer; font-weight: 500; font-size: 0.875rem; color: var(--text-secondary);">
+                            <span style="color: var(--text-primary);">Optional:</span> ProofChat Credentials (for clipboard tool, macOS only)
+                        </summary>
+                        <div style="padding: 0 1rem 1rem;">
+                            <p style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                                Required only for the <code>fmodata_text_to_clipboard</code> tool that converts FileMaker script text to clipboard objects.
+                            </p>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="proofchatFmSecret">ProofChat FM Secret</label>
+                                    <input type="text" id="proofchatFmSecret" placeholder="your-fm-secret">
+                                </div>
+                                <div class="form-group">
+                                    <label for="proofchatLicenseKey">License Key</label>
+                                    <input type="text" id="proofchatLicenseKey" placeholder="your-license-key">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="proofchatActivationData">Activation Data</label>
+                                <input type="text" id="proofchatActivationData" placeholder="your-activation-data">
+                            </div>
+                            <div class="form-group">
+                                <label for="proofchatOpenAIKey">OpenAI API Key</label>
+                                <input type="text" id="proofchatOpenAIKey" placeholder="sk-...">
+                            </div>
+                        </div>
+                    </details>
+
                     <div class="button-group">
                         <button type="button" class="btn btn-primary" onclick="addToCursor()">
                             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -812,6 +841,17 @@
                     <span class="tool-desc">Execute multiple operations in a batch</span>
                 </div>
             </div>
+
+            <h4>Clipboard (macOS only)</h4>
+            <div class="tools-grid">
+                <div class="tool-item">
+                    <span class="tool-name">fmodata_text_to_clipboard</span>
+                    <span class="tool-desc">Convert FileMaker script text to clipboard object</span>
+                </div>
+            </div>
+            <div class="notice notice-info" style="margin-top: 0.75rem; font-size: 0.8125rem;">
+                <strong>Note:</strong> The clipboard tool requires ProofChat API credentials (configure above in optional section).
+            </div>
         </section>
 
         <!-- Manual Setup -->
@@ -939,6 +979,17 @@
                 if (username) args.push('--username', username);
                 if (password) args.push('--password', password);
             }
+
+            // Add optional ProofChat credentials if provided
+            const proofchatFmSecret = document.getElementById('proofchatFmSecret').value.trim();
+            const proofchatLicenseKey = document.getElementById('proofchatLicenseKey').value.trim();
+            const proofchatActivationData = document.getElementById('proofchatActivationData').value.trim();
+            const proofchatOpenAIKey = document.getElementById('proofchatOpenAIKey').value.trim();
+
+            if (proofchatFmSecret) args.push('--proofchatFmSecret', proofchatFmSecret);
+            if (proofchatLicenseKey) args.push('--proofchatLicenseKey', proofchatLicenseKey);
+            if (proofchatActivationData) args.push('--proofchatActivationData', proofchatActivationData);
+            if (proofchatOpenAIKey) args.push('--proofchatOpenAIKey', proofchatOpenAIKey);
 
             return { mcpServers: { fmodata: { command: 'npx', args } } };
         }

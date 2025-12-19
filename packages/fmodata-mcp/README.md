@@ -67,6 +67,10 @@ Add the server to your MCP client configuration (e.g., Cursor `mcp.json`):
 - `--ottoPort` or `--port` - Otto port (optional, only for Otto v3)
 - `--username` or `--user` - FileMaker username (for Basic Auth)
 - `--password` or `--pass` - FileMaker password (for Basic Auth)
+- `--proofchatFmSecret` - ProofChat FM secret (for clipboard tool)
+- `--proofchatLicenseKey` - ProofChat license key (for clipboard tool)
+- `--proofchatActivationData` - ProofChat activation data (for clipboard tool)
+- `--proofchatOpenAIKey` - OpenAI API key (for clipboard tool)
 
 You can also use `--key=value` format:
 
@@ -131,6 +135,12 @@ You can also use `--key=value` format:
 - **`fmodata_batch`** - Execute batch operations
   - Parameters: `requests` (array of request objects)
 
+### Clipboard Operations (macOS only)
+- **`fmodata_text_to_clipboard`** - Convert FileMaker script text to XML and place on clipboard as FileMaker object
+  - Parameters: `text` (FileMaker script in text format)
+  - Requires ProofChat API credentials (see configuration below)
+  - **Platform**: macOS only (uses AppleScript)
+
 ## Example Usage
 
 Once configured, you can use the tools through your MCP client:
@@ -147,7 +157,40 @@ Assistant: [calls fmodata_query_records with table="Customers", filter="Name eq 
 User: Create a new customer
 Assistant: [calls fmodata_create_record with table="Customers", data={...}]
           Successfully created customer with ID 12345
+
+User: Write a FileMaker script that finds wireless licenses (macOS only)
+Assistant: [calls fmodata_text_to_clipboard with text="...script text..."]
+          The script has been converted and placed on your clipboard. 
+          You can now paste it directly into FileMaker!
 ```
+
+## Clipboard Tool Configuration
+
+The `fmodata_text_to_clipboard` tool (macOS only) requires additional ProofChat API credentials. These can be provided via command-line arguments, environment variables, or MCP configuration.
+
+### Via Command-Line Arguments
+
+```bash
+npx -y fmodata-mcp \
+  --host=https://your-server.example.com \
+  --database=YourDatabase \
+  --ottoApiKey=dk_your-api-key \
+  --proofchatFmSecret=your-secret \
+  --proofchatLicenseKey=your-license-key \
+  --proofchatActivationData=your-activation-data \
+  --proofchatOpenAIKey=your-openai-key
+```
+
+### Via Environment Variables
+
+```bash
+export PROOFCHAT_FM_SECRET="your-secret"
+export PROOFCHAT_LICENSE_KEY="your-license-key"
+export PROOFCHAT_ACTIVATION_DATA="your-activation-data"
+export OPENAI_API_KEY="your-openai-key"
+```
+
+See [CLIPBOARD_TOOL.md](CLIPBOARD_TOOL.md) for detailed documentation on this tool.
 
 ## HTTP Mode (Optional)
 
@@ -226,6 +269,10 @@ To deploy the MCP server to Vercel for use with a URL:
 - `x-fmodata-otto-port` or `fmodata-otto-port` - Otto port (optional, only for Otto v3)
 - `x-fmodata-username` or `fmodata-username` - FileMaker username (for Basic Auth)
 - `x-fmodata-password` or `fmodata-password` - FileMaker password (for Basic Auth)
+- `x-proofchat-fm-secret` or `proofchat-fm-secret` - ProofChat FM secret (for clipboard tool)
+- `x-proofchat-license-key` or `proofchat-license-key` - ProofChat license key (for clipboard tool)
+- `x-proofchat-activation-data` or `proofchat-activation-data` - ProofChat activation data (for clipboard tool)
+- `x-proofchat-openai-key` or `proofchat-openai-key` - OpenAI API key (for clipboard tool)
 
 The server will be available at `https://your-app.vercel.app/mcp` and includes a health check endpoint at `https://your-app.vercel.app/health`.
 
