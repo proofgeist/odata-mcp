@@ -1,6 +1,6 @@
 {
   "name": "fmodata-mcp",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "MCP server for FileMaker OData API",
   "repository": {
     "type": "git",
