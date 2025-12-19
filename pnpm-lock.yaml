@@ -13,7 +13,7 @@ importers:
     devDependencies:
       '@changesets/cli':
         specifier: ^2.29.7
-        version: 2.29.7(@types/node@22.19.0)
+        version: 2.29.7(@types/node@25.0.3)
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
@@ -82,8 +82,8 @@ importers:
         specifier: ^4.21.2
         version: 4.21.2
       fmodata:
-        specifier: ^0.1.2
-        version: 0.1.2(@types/node@22.19.0)(jiti@2.6.1)(typescript@5.9.3)
+        specifier: ^0.1.5
+        version: 0.1.5(@types/node@22.19.0)(jiti@2.6.1)(typescript@5.9.3)
       mcp-handler:
         specifier: ^1.0.3
         version: 1.0.3(@modelcontextprotocol/sdk@1.21.0)
@@ -127,9 +127,15 @@ importers:
       '@n8n/node-cli':
         specifier: ^0.17.0
         version: 0.17.0(@typescript-eslint/utils@8.49.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
+      '@types/node':
+        specifier: ^25.0.1
+        version: 25.0.3
       copyfiles:
         specifier: ^2.4.1
         version: 2.4.1
+      cross-env:
+        specifier: ^10.1.0
+        version: 10.1.0
       n8n-workflow:
         specifier: ^1.22.0
         version: 1.120.0
@@ -253,6 +259,9 @@ packages:
 
   '@emnapi/wasi-threads@1.1.0':
     resolution: {integrity: sha512-WI0DdZ8xFSbgMjR1sFsKABJ/C5OnRrjT06JXbZKexJGrDuPTzZdDYfFlsgcCXCyf+suG5QU2e/y1Wo2V/OapLQ==}
+
+  '@epic-web/invariant@1.0.0':
+    resolution: {integrity: sha512-lrTPqgvfFQtR/eY/qkIzp98OGdNJu0m5ji3q/nJI8v3SXkRKEnWiOxMmbvcSoAIzv/cGiuvRy57k4suKQSAdwA==}
 
   '@esbuild/aix-ppc64@0.25.12':
     resolution: {integrity: sha512-Hhmwd6CInZ3dwpuGTF8fJG6yoWmsToE+vYgD4nytZVxcu1ulHpUQRAB1UJ8+N1Am3Mz4+xOByoQoSZf4D+CpkA==}
@@ -913,6 +922,9 @@ packages:
 
   '@types/node@22.19.0':
     resolution: {integrity: sha512-xpr/lmLPQEj+TUnHmR+Ab91/glhJvsqcjB+yY0Ix9GO70H6Lb4FHH5GeqdOE5btAx7eIMwuHkp4H2MSkLcqWbA==}
+
+  '@types/node@25.0.3':
+    resolution: {integrity: sha512-W609buLVRVmeW693xKfzHeIV6nJGGz98uCPfeXI1ELMLXVeKYZ9m15fAMSaUPBHYLGFsVRcMmSCksQOrZV9BYA==}
 
   '@types/qs@6.14.0':
     resolution: {integrity: sha512-eOunJqu0K1923aExK6y8p6fsihYEn/BYuQ4g0CxAAgFc4b/ZLN4CrsRZ55srTdqoiLzU2B2evC+apEIxprEzkQ==}
@@ -1605,6 +1617,11 @@ packages:
   create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
 
+  cross-env@10.1.0:
+    resolution: {integrity: sha512-GsYosgnACZTADcmEyJctkJIoqAhHjttw7RsFrVoJNXbsWWqaq6Ym+7kZjq6mS45O0jij6vtiReppKQEtqWy6Dw==}
+    engines: {node: '>=20'}
+    hasBin: true
+
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
@@ -2098,8 +2115,8 @@ packages:
   flatted@3.3.3:
     resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
 
-  fmodata@0.1.2:
-    resolution: {integrity: sha512-5uncZUCYhykN+9hw++FzrX1F0Ny7ATqM+cHBkSUAAtKX9gmVnuszpgwgJi2tg/dkyeMg3TaoNHaVJWz3CWQvvQ==}
+  fmodata@0.1.5:
+    resolution: {integrity: sha512-M7N0SczQCavAQhxflqb1JcJpSMh0xU1X8vuL8gGk+ZuQbXAkfWZLoji1prPRMizCJNHoX9QuqmaKuTgzR5+u7Q==}
     engines: {node: '>=18.0.0'}
 
   for-each@0.3.5:
@@ -3423,6 +3440,9 @@ packages:
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
+  undici-types@7.16.0:
+    resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
+
   undici@5.28.4:
     resolution: {integrity: sha512-72RFADWFqKmUb2hmmvNODKL3p9hcB6Gt2DOQMis1SEBaV6a4MH8soBvzg+95CYhCKPFedut2JY9bMfrDl9D23g==}
     engines: {node: '>=14.0'}
@@ -3719,7 +3739,7 @@ snapshots:
     dependencies:
       '@changesets/types': 6.1.0
 
-  '@changesets/cli@2.29.7(@types/node@22.19.0)':
+  '@changesets/cli@2.29.7(@types/node@25.0.3)':
     dependencies:
       '@changesets/apply-release-plan': 7.0.13
       '@changesets/assemble-release-plan': 6.0.9
@@ -3735,7 +3755,7 @@ snapshots:
       '@changesets/should-skip-package': 0.1.2
       '@changesets/types': 6.1.0
       '@changesets/write': 0.4.0
-      '@inquirer/external-editor': 1.0.2(@types/node@22.19.0)
+      '@inquirer/external-editor': 1.0.2(@types/node@25.0.3)
       '@manypkg/get-packages': 1.1.3
       ansi-colors: 4.1.3
       ci-info: 3.9.0
@@ -3877,6 +3897,8 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
+  '@epic-web/invariant@1.0.0': {}
+
   '@esbuild/aix-ppc64@0.25.12':
     optional: true
 
@@ -4014,12 +4036,12 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@inquirer/external-editor@1.0.2(@types/node@22.19.0)':
+  '@inquirer/external-editor@1.0.2(@types/node@25.0.3)':
     dependencies:
       chardet: 2.1.1
       iconv-lite: 0.7.0
     optionalDependencies:
-      '@types/node': 22.19.0
+      '@types/node': 25.0.3
 
   '@isaacs/balanced-match@4.0.1': {}
 
@@ -4510,6 +4532,10 @@ snapshots:
   '@types/node@22.19.0':
     dependencies:
       undici-types: 6.21.0
+
+  '@types/node@25.0.3':
+    dependencies:
+      undici-types: 7.16.0
 
   '@types/qs@6.14.0': {}
 
@@ -5332,6 +5358,11 @@ snapshots:
 
   create-require@1.1.1: {}
 
+  cross-env@10.1.0:
+    dependencies:
+      '@epic-web/invariant': 1.0.0
+      cross-spawn: 7.0.6
+
   cross-spawn@7.0.6:
     dependencies:
       path-key: 3.1.1
@@ -5876,7 +5907,7 @@ snapshots:
 
   flatted@3.3.3: {}
 
-  fmodata@0.1.2(@types/node@22.19.0)(jiti@2.6.1)(typescript@5.9.3):
+  fmodata@0.1.5(@types/node@22.19.0)(jiti@2.6.1)(typescript@5.9.3):
     dependencies:
       '@tanstack/vite-config': 0.2.1(@types/node@22.19.0)(rollup@4.52.5)(typescript@5.9.3)(vite@6.4.1(@types/node@22.19.0)(jiti@2.6.1))
       vite: 6.4.1(@types/node@22.19.0)(jiti@2.6.1)
@@ -7218,6 +7249,8 @@ snapshots:
     optional: true
 
   undici-types@6.21.0: {}
+
+  undici-types@7.16.0: {}
 
   undici@5.28.4:
     dependencies:
