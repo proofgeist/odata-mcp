@@ -207,6 +207,14 @@ export function buildContentTypeHeader(
 }
 
 /**
+ * Build Prefer header value for FileMaker OData queries
+ * Includes fmodata.entity-ids to respond with table and field IDs
+ */
+export function buildPreferHeader(): string {
+  return "fmodata.entity-ids";
+}
+
+/**
  * Encode primary key value for URL
  * For OData URLs, keys are used in paths like /table(key)
  * String keys must be quoted with single quotes: /table('key')

@@ -39,6 +39,7 @@ import {
   buildScriptPath,
   buildAcceptHeader,
   buildContentTypeHeader,
+  buildPreferHeader,
   encodeODataFilter,
   parseErrorResponse,
 } from "../utils.js";
@@ -135,6 +136,12 @@ export abstract class BaseFetchAdapter implements Adapter {
     // Set OData version headers
     requestHeaders.set("OData-Version", "4.0");
     requestHeaders.set("OData-MaxVersion", "4.0");
+
+    // Set Prefer header for GET requests (queries) to include entity IDs
+    if (method === "GET") {
+      const preferHeader = headers["Prefer"] ?? buildPreferHeader();
+      requestHeaders.set("Prefer", preferHeader);
+    }
 
     // Merge any additional headers
     for (const [key, value] of Object.entries(headers)) {
