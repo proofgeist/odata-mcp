@@ -4,7 +4,7 @@ import type { ODataConfig } from "../server.js";
 import { TextToClipboardSchema } from "../types.js";
 import { execSync } from "child_process";
 import { platform } from "os";
-import { writeFileSync, unlinkSync, mkdtempSync } from "fs";
+import { writeFileSync, unlinkSync, mkdtempSync, readFileSync, existsSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 
@@ -256,21 +256,196 @@ export function createClipboardTools(
 }
 
 /**
- * Call ProofChat API to convert text to FileMaker XML
+ * Split script into chunks for batch processing.
+ * Splits by size, attempting to break at logical boundaries (blank lines, end of steps).
  */
-async function convertTextToXML(text: string): Promise<string> {
-  const secret = proofchatConfig.proofchatFmSecret;
-  const licenseKey = proofchatConfig.proofchatLicenseKey;
-  const activationData = proofchatConfig.proofchatActivationData;
-  const openaiKey = proofchatConfig.proofchatOpenAIKey;
-
-  if (!secret || !licenseKey || !activationData || !openaiKey) {
-    throw new Error(
-      "Missing required ProofChat configuration: proofchatFmSecret, proofchatLicenseKey, proofchatActivationData, proofchatOpenAIKey. " +
-      "These can be set via MCP server configuration or environment variables (PROOFCHAT_FM_SECRET, PROOFCHAT_LICENSE_KEY, PROOFCHAT_ACTIVATION_DATA, OPENAI_API_KEY).",
-    );
+function splitScriptIntoChunks(text: string, maxChunkSize: number = 15000): string[] {
+  const lines = text.split("\n");
+  const chunks: string[] = [];
+  let currentChunk: string[] = [];
+  let currentSize = 0;
+  
+  // Look for good break points: blank lines or lines that look like step endings
+  const isGoodBreakPoint = (line: string): boolean => {
+    const trimmed = line.trim();
+    // Blank lines are good break points
+    if (trimmed === "") return true;
+    // Lines ending with certain patterns (End If, End Loop, Exit Script, etc.)
+    if (/^(End\s+(If|Loop|Script)|Exit\s+(Loop|Script)|Commit\s+Records)/i.test(trimmed)) {
+      return true;
+    }
+    return false;
+  };
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line) continue; // Skip undefined lines (shouldn't happen, but TypeScript safety)
+    
+    const lineSize = line.length;
+    const wouldExceedLimit = currentSize + lineSize > maxChunkSize;
+    
+    if (wouldExceedLimit && currentChunk.length > 0) {
+      // We're about to exceed the limit - try to find a good break point
+      // Look backwards up to 10 lines for a blank line or step ending
+      let breakIndex = -1;
+      for (let j = currentChunk.length - 1; j >= Math.max(0, currentChunk.length - 10); j--) {
+        if (isGoodBreakPoint(currentChunk[j] || "")) {
+          breakIndex = j + 1; // Break after this line
+          break;
+        }
+      }
+      
+      if (breakIndex > 0) {
+        // Found a good break point - split there
+        const chunkToAdd = currentChunk.slice(0, breakIndex);
+        chunks.push(chunkToAdd.join("\n"));
+        currentChunk = currentChunk.slice(breakIndex);
+        // Recalculate size of remaining chunk
+        currentSize = currentChunk.join("\n").length;
+      } else {
+        // No good break point found - force split at current position
+        chunks.push(currentChunk.join("\n"));
+        currentChunk = [];
+        currentSize = 0;
+      }
+    }
+    
+    // Add the current line
+    currentChunk.push(line);
+    currentSize += lineSize + 1; // +1 for newline
   }
+  
+  // Add the last chunk
+  if (currentChunk.length > 0) {
+    chunks.push(currentChunk.join("\n"));
+  }
+  
+  return chunks.length > 0 ? chunks : [text];
+}
 
+/**
+ * Clean problematic characters from XML text content that could cause AppleScript conversion to fail.
+ * Only affects text content between tags, not tags themselves or attribute values.
+ */
+function cleanXMLTextContent(xml: string): string {
+  let cleaned = xml;
+  
+  // Protect XML tags and attributes
+  const tagPlaceholders: string[] = [];
+  cleaned = cleaned.replace(/<[^>]+>/g, (match) => {
+    const placeholder = `__TAG_${tagPlaceholders.length}__`;
+    tagPlaceholders.push(match);
+    return placeholder;
+  });
+  
+  // Remove problematic Unicode characters from text content:
+  // - Box-drawing characters (U+2500-U+259F)
+  // - Control characters (except common whitespace: tab, LF, CR)
+  cleaned = cleaned.replace(/[\u2500-\u257F\u2580-\u259F]/g, "");
+  cleaned = cleaned.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F]/g, "");
+  
+  // Restore tags
+  tagPlaceholders.forEach((tag, index) => {
+    cleaned = cleaned.replace(`__TAG_${index}__`, tag);
+  });
+  
+  return cleaned;
+}
+
+/**
+ * Sanitize XML by properly escaping special characters in text content
+ * Fixes unescaped ampersands and other XML special characters
+ */
+function sanitizeXML(xml: string): string {
+  // First clean problematic characters from text content
+  let sanitized = cleanXMLTextContent(xml);
+  
+  // Fix unescaped ampersands in text content (but not in CDATA, tags, or already escaped)
+  // First, protect CDATA sections
+  const cdataSections: string[] = [];
+  sanitized = sanitized.replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, (match) => {
+    const placeholder = `__CDATA_${cdataSections.length}__`;
+    cdataSections.push(match);
+    return placeholder;
+  });
+  
+  // Protect XML tags (attribute values and tag names)
+  const tagPlaceholders: string[] = [];
+  sanitized = sanitized.replace(/<[^>]+>/g, (match) => {
+    const placeholder = `__TAG_${tagPlaceholders.length}__`;
+    tagPlaceholders.push(match);
+    return placeholder;
+  });
+  
+  // Now fix special characters in text content (tags are protected as placeholders)
+  // Replace & that's not part of a valid entity (not followed by #, letters/digits, semicolon)
+  sanitized = sanitized.replace(/&(?!#?[a-zA-Z0-9]+;)/g, "&amp;");
+  // Replace < and > in text content (tags are already protected)
+  sanitized = sanitized.replace(/</g, "&lt;");
+  sanitized = sanitized.replace(/>/g, "&gt;");
+  
+  // Restore tags (which still have their original < and >)
+  tagPlaceholders.forEach((tag, index) => {
+    sanitized = sanitized.replace(`__TAG_${index}__`, tag);
+  });
+  
+  // Restore CDATA sections
+  cdataSections.forEach((cdata, index) => {
+    sanitized = sanitized.replace(`__CDATA_${index}__`, cdata);
+  });
+  
+  return sanitized;
+}
+
+/**
+ * Extract Step elements from FileMaker XML
+ */
+function extractStepsFromXML(xml: string): string {
+  // Use regex to extract all <Step>...</Step> elements
+  const stepMatches = xml.match(/<Step[^>]*>[\s\S]*?<\/Step>/g);
+  if (!stepMatches || stepMatches.length === 0) {
+    return "";
+  }
+  return stepMatches.join("\n  ");
+}
+
+/**
+ * Combine multiple XML chunks into a single valid FileMaker XML document
+ */
+function combineXMLChunks(xmlChunks: string[]): string {
+  const allSteps: string[] = [];
+  
+  for (const xml of xmlChunks) {
+    const steps = extractStepsFromXML(xml);
+    if (steps) {
+      allSteps.push(steps);
+    }
+  }
+  
+  if (allSteps.length === 0) {
+    throw new Error("No valid steps found in any XML chunks");
+  }
+  
+  // Combine into a single XML document
+  const combinedXML = `<?xml version="1.0" encoding="UTF-8"?>
+<fmxmlsnippet type="FMObjectList">
+  ${allSteps.join("\n  ")}
+</fmxmlsnippet>`;
+  
+  // Sanitize the final combined XML to fix any escaping issues
+  return sanitizeXML(combinedXML);
+}
+
+/**
+ * Call ProofChat API to convert a single chunk of text to FileMaker XML
+ */
+async function convertChunkToXML(
+  text: string,
+  secret: string,
+  licenseKey: string,
+  activationData: string,
+  openaiKey: string,
+): Promise<string> {
   const requestBody: ProofChatAPIRequest = {
     text,
     modelConfigs: {
@@ -313,9 +488,61 @@ async function convertTextToXML(text: string): Promise<string> {
 }
 
 /**
- * Execute AppleScript to set clipboard with XML
+ * Call ProofChat API to convert text to FileMaker XML
+ * Uses chunking for large scripts to avoid size limitations
+ * 
+ * NOTE: We send the ORIGINAL text to ProofChat (no preprocessing) so the API can parse it correctly.
+ * Preprocessing/sanitization only happens on the XML response to fix escaping issues.
  */
-function setClipboardViaAppleScript(xml: string): void {
+async function convertTextToXML(text: string): Promise<string> {
+  // Send ORIGINAL text to ProofChat - don't preprocess before API call
+  // The API needs the original script text to parse steps correctly
+  const secret = proofchatConfig.proofchatFmSecret;
+  const licenseKey = proofchatConfig.proofchatLicenseKey;
+  const activationData = proofchatConfig.proofchatActivationData;
+  const openaiKey = proofchatConfig.proofchatOpenAIKey;
+
+  if (!secret || !licenseKey || !activationData || !openaiKey) {
+    throw new Error(
+      "Missing required ProofChat configuration: proofchatFmSecret, proofchatLicenseKey, proofchatActivationData, proofchatOpenAIKey. " +
+      "These can be set via MCP server configuration or environment variables (PROOFCHAT_FM_SECRET, PROOFCHAT_LICENSE_KEY, PROOFCHAT_ACTIVATION_DATA, OPENAI_API_KEY).",
+    );
+  }
+
+  // Estimate if chunking is needed (roughly 15KB of text might generate 50KB+ XML)
+  const chunkThreshold = 15000; // Characters of text
+  
+  if (text.length > chunkThreshold) {
+    // Split into chunks and process in parallel
+    const chunks = splitScriptIntoChunks(text, chunkThreshold);
+    
+    if (chunks.length > 1) {
+      // Process all chunks in parallel with ORIGINAL text
+      const xmlPromises = chunks.map((chunk) =>
+        convertChunkToXML(chunk, secret, licenseKey, activationData, openaiKey),
+      );
+      
+      const xmlChunks = await Promise.all(xmlPromises);
+      
+      // Sanitize each XML chunk AFTER getting response (fixes XML escaping issues)
+      const sanitizedChunks = xmlChunks.map((xml) => sanitizeXML(xml));
+      
+      // Combine all XML chunks into a single document
+      return combineXMLChunks(sanitizedChunks);
+    }
+  }
+
+  // For smaller scripts, process normally with ORIGINAL text
+  const xml = await convertChunkToXML(text, secret, licenseKey, activationData, openaiKey);
+  // Sanitize the XML AFTER getting response to fix any escaping issues
+  return sanitizeXML(xml);
+}
+
+/**
+ * Execute AppleScript to set clipboard with XML
+ * Returns true if successful, false if failed (e.g., due to size)
+ */
+function setClipboardViaAppleScript(xml: string): boolean {
   // Check platform
   if (platform() !== "darwin") {
     throw new Error(
@@ -523,23 +750,27 @@ end fmObjectTranslator_Instantiate
     });
 
     if (!result.includes("success")) {
-      throw new Error("AppleScript did not return success");
+      // Clean up temp files
+      try {
+        unlinkSync(xmlFilePath);
+        unlinkSync(scriptFilePath);
+      } catch {}
+      return false;
     }
 
     // Clean up temp files
     unlinkSync(xmlFilePath);
     unlinkSync(scriptFilePath);
+    return true;
   } catch (error) {
     // Clean up on error
     try {
       unlinkSync(xmlFilePath);
       unlinkSync(scriptFilePath);
     } catch {}
-
-    if (error instanceof Error) {
-      throw new Error(`Failed to execute AppleScript: ${error.message}`);
-    }
-    throw error;
+    
+    // Return false on error (size limit or other issues)
+    return false;
   }
 }
 
@@ -553,26 +784,84 @@ export async function handleClipboardTool(
 ): Promise<unknown> {
   switch (name) {
     case "fmodata_text_to_clipboard": {
-      const { text } = args as { text: string };
+      const { text, filePath } = args as { text?: string; filePath?: string };
+
+      // Validate that at least one parameter is provided
+      if (!text && !filePath) {
+        throw new Error("Either 'text' or 'filePath' must be provided");
+      }
+
+      // Read script text from file if filePath is provided, otherwise use text
+      let scriptText: string;
+      if (filePath) {
+        if (!existsSync(filePath)) {
+          throw new Error(`File not found: ${filePath}`);
+        }
+        try {
+          let rawText = readFileSync(filePath, "utf8");
+          // Normalize line endings to LF (Unix-style) - strip CRLF and CR
+          scriptText = rawText.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+          // Strip BOM if present
+          if (scriptText.charCodeAt(0) === 0xfeff) {
+            scriptText = scriptText.slice(1);
+          }
+        } catch (error) {
+          throw new Error(`Failed to read file ${filePath}: ${error instanceof Error ? error.message : String(error)}`);
+        }
+      } else {
+        scriptText = text!; // Safe because we validated above
+      }
+
+      let xml: string | undefined;
+      let debugXmlPath: string | undefined;
 
       try {
         // Step 1: Convert text to XML via API
-        const xml = await convertTextToXML(text);
+        xml = await convertTextToXML(scriptText);
 
-        // Step 2: Set clipboard via AppleScript
-        setClipboardViaAppleScript(xml);
+        // Always save XML to a file for inspection/backup
+        debugXmlPath = join(tmpdir(), `fmodata-script-${Date.now()}.xml`);
+        writeFileSync(debugXmlPath, xml, "utf8");
 
-        return {
-          success: true,
-          message:
-            "FileMaker script has been converted to XML and placed on the clipboard. You can now paste it into FileMaker.",
-        };
+        // Step 2: Always try to set clipboard via AppleScript (no size limit)
+        const clipboardSuccess = setClipboardViaAppleScript(xml);
+
+        if (clipboardSuccess) {
+          return {
+            success: true,
+            message:
+              `FileMaker script has been converted to XML (${Math.round(xml.length / 1024)}KB) and placed on the clipboard. You can now paste it into FileMaker.`,
+            xmlPath: debugXmlPath, // Path to XML file as backup
+            xmlLength: xml.length,
+          };
+        } else {
+          // Clipboard copy failed - return file path with instructions
+          return {
+            success: true,
+            message:
+              `FileMaker script has been converted to XML (${Math.round(xml.length / 1024)}KB). Clipboard copy failed, so the XML has been saved to a file. You can import this XML file directly into FileMaker using File > Import Records or by dragging it into Script Workspace.`,
+            xmlPath: debugXmlPath,
+            xmlLength: xml.length,
+          };
+        }
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : String(error);
+        
+        // Save XML even on error if we got it
+        if (xml && !debugXmlPath) {
+          try {
+            debugXmlPath = join(tmpdir(), `fmodata-debug-error-${Date.now()}.xml`);
+            writeFileSync(debugXmlPath, xml, "utf8");
+          } catch {}
+        }
+
         return {
           success: false,
           error: errorMessage,
+          debugXmlPath, // Include path even on error
+          xmlLength: xml?.length,
+          xmlPreview: xml?.substring(0, 500),
         };
       }
     }

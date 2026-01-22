@@ -400,10 +400,13 @@ export const TextToClipboardSchema: JSONSchema7 = {
   properties: {
     text: {
       type: "string",
-      description: "FileMaker script in text format to convert and place on clipboard",
+      description: "FileMaker script in text format to convert and place on clipboard. Either 'text' or 'filePath' must be provided.",
+    },
+    filePath: {
+      type: "string",
+      description: "Path to a file containing the FileMaker script text. This is faster for large scripts. Either 'text' or 'filePath' must be provided.",
     },
   },
-  required: ["text"],
   additionalProperties: false,
 };
 
